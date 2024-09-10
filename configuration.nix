@@ -53,11 +53,8 @@
   ];
 
   # Boot loader configuration (GRUB)
-  boot.loader.grub = {
-    enable = true;
-    efiSupport = true;
-    useOSProber = true;
-    device = "/dev/nvme0n1p1";  # Update as per your disk
+  boot.loader = {
+    systemd-boot.enable = true;
   };
 
   # AMD graphics drivers
