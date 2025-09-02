@@ -1,0 +1,44 @@
+[global]
+    font = NotoSans Nerd Font 10
+    format = "<b>%s</b>\n%b"
+    sort = yes
+    indicate_hidden = yes
+    word_wrap = yes
+    alignment = left
+    show_age_threshold = 60
+    ellipsize = middle
+
+    offset = (10, 10)
+    shrink = yes
+    transparency = 0
+    padding = 12
+    horizontal_padding = 12
+    frame_width = 0
+    corner_radius = 8
+    separator_height = 2
+    line_height = 0
+
+    separator_color = "#e6afff"
+    highlight = "#cba3ff"
+
+    icon_position = left
+    max_icon_size = 48
+
+    idle_threshold = 120
+    hide_duplicate_count = yes
+    show_indicators = no
+
+[urgency_low]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    timeout = 5
+
+[urgency_normal]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    timeout = 8
+
+[urgency_critical]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    timeout = 0
