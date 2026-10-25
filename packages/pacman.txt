@@ -1,6 +1,6 @@
-# Pacotes dos repositórios oficiais. Uma linha por pacote; '#' comenta.
+# Packages from the official repositories. One per line; '#' starts a comment.
 
-# Base da sessão
+# Session base
 base-devel
 git
 xorg-xwayland
@@ -9,16 +9,22 @@ xdg-desktop-portal-gtk
 xdg-user-dirs
 polkit
 
-# Noctalia (shell) e o que ele usa
+# Login screen
+greetd
+noctalia-greeter
+accountsservice
+
+# Noctalia (shell) and what it uses
 noctalia
 upower
 power-profiles-daemon
 gnome-keyring
 libsecret
+libnotify
 sound-theme-freedesktop
 libheif
 
-# Áudio, mídia e brilho
+# Audio, media and brightness
 pipewire
 pipewire-pulse
 pipewire-alsa
@@ -27,17 +33,22 @@ pavucontrol
 playerctl
 brightnessctl
 
-# Rede e bluetooth
+# Network and bluetooth
 networkmanager
 network-manager-applet
 bluez
 bluez-utils
 
-# Split tunnel WireGuard (wgsplit + plugin zmiguel/wg-split)
+# WireGuard split tunnel (wgsplit + the zmiguel/wg-split plugin)
 wireguard-tools
 nftables
+dnsmasq
 jq
 sudo
+
+# Shell
+bash-completion
+starship
 
 # Apps
 kitty
@@ -45,9 +56,8 @@ dolphin
 firefox
 spotify-launcher
 btop
-starship
 
-# Fontes, ícones e temas
+# Fonts, icons and themes
 noto-fonts
 noto-fonts-emoji
 noto-fonts-cjk
