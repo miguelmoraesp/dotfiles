@@ -1,0 +1,12 @@
+# DNS forwarder for apps in the wgsplit tunnel. Runs inside wgsplit.slice so its
+# own lookups leave through the tunnel; wgsplit-root redirects the slice's
+# port-53 traffic here. Started and stopped by `wgsplit up` / `wgsplit down`.
+[Unit]
+Description=DNS forwarder for the wgsplit split tunnel
+After=wgsplit-anchor.service
+
+[Service]
+Slice=wgsplit.slice
+ExecStart=%h/.local/bin/wgsplit dns-serve
+Restart=on-failure
+RestartSec=2

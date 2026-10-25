@@ -9,12 +9,19 @@
 #   wgsplit run [--force] <command> [args...]
 #   wgsplit attach <pid|process-name>...
 #   wgsplit status [--json] | ps
+#
+# DNS: wgsplit-root redirects the slice's port-53 traffic to a dnsmasq that
+# wgsplit-dns.service runs inside the slice (`wgsplit dns-serve`), so lookups
+# leave through the tunnel too.
 set -euo pipefail
 
 IFACE="wgsplit"
 MARK="0x5157"
 ROOT_HELPER="/usr/local/bin/wgsplit-root"
 ANCHOR="wgsplit-anchor.service"
+DNS_UNIT="wgsplit-dns.service"
+DNS_FILE="/run/wgsplit/dns"
+DNS_PORT="5354"
 SLICE="wgsplit.slice"
 UID_NUM="$(id -u)"
 SLICE_DIR="/sys/fs/cgroup/user.slice/user-$UID_NUM.slice/user@$UID_NUM.service/$SLICE"
@@ -43,10 +50,27 @@ root() {
 cmd_up() {
     ensure_anchor
     root up "$UID_NUM"
+    if [[ -s "$DNS_FILE" ]]; then
+        systemctl --user restart "$DNS_UNIT" || echo "wgsplit: $DNS_UNIT failed; tunneled apps have no DNS" >&2
+    fi
 }
 
 cmd_down() {
+    systemctl --user stop "$DNS_UNIT" 2>/dev/null || true
     root down "$@"
+}
+
+# ExecStart of wgsplit-dns.service: a forwarder that only talks to the tunnel's DNS servers.
+cmd_dns_serve() {
+    [[ -s "$DNS_FILE" ]] || die "$DNS_FILE is empty; run 'wgsplit up' first"
+    local servers=() server
+    while read -r server; do
+        [[ -n "$server" ]] && servers+=("--server=$server")
+    done < "$DNS_FILE"
+    exec dnsmasq --keep-in-foreground --log-facility=- --pid-file= \
+        --no-resolv --no-hosts --no-poll --bind-interfaces \
+        --listen-address=127.0.0.1,::1 --port="$DNS_PORT" \
+        --cache-size=1000 "${servers[@]}"
 }
 
 cmd_toggle() {
@@ -95,12 +119,13 @@ cmd_attach() {
     echo "moved ${#pids[@]} process(es) into $SLICE; only connections opened from now on use the tunnel"
 }
 
-# Prints "comm<TAB>pid" for every process in the slice except the anchor itself.
+# Prints "comm<TAB>pid" for every app in the slice (not the anchor or the DNS forwarder).
 slice_procs() {
     [[ -d "$SLICE_DIR" ]] || return 0
     local anchor_pid procs pid comm
     anchor_pid="$(systemctl --user show -p MainPID --value "$ANCHOR" 2>/dev/null || echo 0)"
     while IFS= read -r procs; do
+        [[ "$procs" == */"$DNS_UNIT"/* ]] && continue
         while IFS= read -r pid; do
             [[ -z "$pid" || "$pid" == "$anchor_pid" ]] && continue
             comm="$(cat "/proc/$pid/comm" 2>/dev/null)" || continue
@@ -110,9 +135,11 @@ slice_procs() {
 }
 
 cmd_status_json() {
-    local up=false rules=false stats="" endpoint="" handshake=0 rx=0 tx=0 stats_error=""
+    local up=false rules=false dns_active=false stats="" endpoint="" handshake=0 rx=0 tx=0 stats_error="" dns=""
     is_up && up=true
     has_rules && rules=true
+    systemctl --user -q is-active "$DNS_UNIT" 2>/dev/null && dns_active=true
+    [[ -r "$DNS_FILE" ]] && dns="$(cat "$DNS_FILE")"
 
     if [[ $up == true ]]; then
         if stats="$(sudo -n "$ROOT_HELPER" stats 2>&1)"; then
@@ -129,7 +156,7 @@ cmd_status_json() {
         --argjson up "$up" --argjson rules "$rules" \
         --arg iface "$IFACE" --arg endpoint "$endpoint" \
         --argjson handshake "${handshake:-0}" --argjson rx "${rx:-0}" --argjson tx "${tx:-0}" \
-        --arg stats_error "$stats_error" '
+        --arg stats_error "$stats_error" --arg dns "$dns" --argjson dns_active "$dns_active" '
         (split("\n") | map(select(length > 0) | split("\t") | {name: .[0], pid: (.[1] | tonumber)})) as $procs
         | {
             up: $up,
@@ -140,6 +167,8 @@ cmd_status_json() {
             rx_bytes: $rx,
             tx_bytes: $tx,
             stats_error: $stats_error,
+            dns_servers: ($dns | split("\n") | map(select(length > 0))),
+            dns_active: $dns_active,
             apps: ($procs | group_by(.name) | map({name: .[0].name, pids: map(.pid)}))
           }'
 }
@@ -156,6 +185,9 @@ cmd_status() {
     else
         echo "tunnel: down"
     fi
+    if [[ -s "$DNS_FILE" ]]; then
+        echo "dns: $(paste -sd " " "$DNS_FILE") via $DNS_UNIT ($(systemctl --user is-active "$DNS_UNIT" 2>/dev/null || true))"
+    fi
     echo "apps in $SLICE:"
     slice_procs | sort | awk -F'\t' '{ printf "  %-20s %s\n", $1, $2 }'
 }
@@ -168,8 +200,9 @@ case "${1:-}" in
     attach) shift; cmd_attach "$@" ;;
     status) shift; cmd_status "$@" ;;
     ps) slice_procs | sort ;;
+    dns-serve) cmd_dns_serve ;;
     *)
-        sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'
         exit 2
         ;;
 esac

@@ -135,6 +135,11 @@ local function statusCard()
     table.insert(rows, detailRow(noctalia.tr("panel.handshake"), handshakeText(status.latest_handshake)))
     table.insert(rows, detailRow(noctalia.tr("panel.traffic"),
       `↓ {formatBytes(status.rx_bytes)}   ↑ {formatBytes(status.tx_bytes)}`))
+    local servers = type(status.dns_servers) == "table" and status.dns_servers or {}
+    local dnsText = if #servers == 0 then noctalia.tr("panel.dns_system")
+      elseif status.dns_active then table.concat(servers, ", ")
+      else noctalia.tr("panel.dns_down")
+    table.insert(rows, detailRow(noctalia.tr("panel.dns"), dnsText))
   elseif status.killswitch then
     table.insert(rows, ui.label({ text = noctalia.tr("panel.killswitch_hint"), fontSize = 12, color = "on_surface_variant", maxLines = 3 }))
     table.insert(rows, ui.button({

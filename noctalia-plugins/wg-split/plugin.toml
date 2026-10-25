@@ -5,14 +5,14 @@
 
 id           = "zmiguel/wg-split"
 name         = "WireGuard Split Tunnel"
-version      = "1.0.0"
+version      = "1.1.0"
 plugin_api   = 24
 author       = "zmiguel"
 license      = "MIT"
 icon         = "shield-lock"
 description  = "Route only chosen applications through a WireGuard tunnel, with a kill switch."
 tags         = ["bar", "panel", "launcher", "service", "shortcut", "network", "vpn", "privacy"]
-dependencies = ["wgsplit", "wireguard-tools", "nftables", "jq", "sudo"]
+dependencies = ["wgsplit", "wireguard-tools", "nftables", "dnsmasq", "jq", "sudo"]
 
 [[setting]]
 key = "apps"

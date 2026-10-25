@@ -15,6 +15,8 @@ local status = {
   latest_handshake = 0,
   rx_bytes = 0,
   tx_bytes = 0,
+  dns_servers = {},
+  dns_active = false,
   apps = {},
   error = "",
 }
@@ -148,6 +150,8 @@ refresh = function()
     status.latest_handshake = tonumber(data.latest_handshake) or 0
     status.rx_bytes = tonumber(data.rx_bytes) or 0
     status.tx_bytes = tonumber(data.tx_bytes) or 0
+    status.dns_servers = type(data.dns_servers) == "table" and data.dns_servers or {}
+    status.dns_active = data.dns_active == true
     status.apps = type(data.apps) == "table" and data.apps or {}
     if type(data.stats_error) == "string" and data.stats_error ~= "" then
       log("stats: " .. firstLine(data.stats_error))
