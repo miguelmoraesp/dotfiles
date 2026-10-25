@@ -1,0 +1,89 @@
+# Noctalia — shell (barra, launcher, notificações, wallpaper, lock, OSD)
+# Referência completa: https://docs.noctalia.dev/noctalia/
+# Valide com `noctalia config validate`.
+#
+# O que você muda pela GUI vai para ~/.local/state/noctalia/settings.toml e
+# tem prioridade sobre este arquivo. Se algo daqui "não pegar", olhe lá.
+
+[shell]
+lang = "pt-BR"
+telemetry_enabled = false
+offline_mode = false            # os plugins/templates da comunidade precisam de rede
+polkit_agent = true             # Umbriel não traz agente polkit próprio
+time_format = "{:%H:%M}"
+date_format = "%A, %d/%m"
+clipboard_enabled = true
+umbriel_overview_type_to_launch_enabled = true
+umbriel_overview_close_on_launch_enabled = true
+umbriel_audio_provider_enabled = false
+
+# ── Tema ──────────────────────────────────────────────────────────────────────
+
+[theme]
+mode = "dark"
+source = "builtin"
+builtin = "Noctalia"
+# Para gerar as cores a partir do wallpaper (o setup antigo era todo cinza):
+# source = "wallpaper"
+# wallpaper_scheme = "m3-monochrome"
+
+[theme.templates]
+enable_builtin_templates = true
+# Liste os disponíveis com: noctalia theme --list-templates
+builtin_ids = ["umbriel", "kitty", "gtk3", "gtk4", "qt", "btop"]
+enable_community_templates = true
+community_ids = ["starship"]
+# Spicetify (tema do Spotify) — rode ./install.sh --spicetify antes de habilitar:
+# community_ids = ["starship", "spicetify"]
+
+# ── Wallpaper ─────────────────────────────────────────────────────────────────
+
+[wallpaper]
+enabled = true
+fill_mode = "crop"
+directory = "~/wallpapers"
+
+[wallpaper.default]
+path = "~/wallpapers/blackhole.png"
+
+# ── Idle ──────────────────────────────────────────────────────────────────────
+
+[idle.behavior.lock]
+timeout = 600
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 660
+action = "screen_off"
+enabled = true
+
+# ── Barra ─────────────────────────────────────────────────────────────────────
+
+[bar.main]
+position = "top"
+thickness = 34
+radius = 12
+margin_ends = 12
+margin_edge = 10
+padding = 14
+widget_spacing = 6
+compositor_blur = true
+
+start = ["launcher", "workspaces", "active-window"]
+center = ["clock"]
+end = ["spotify_now", "tray", "notifications", "clipboard", "vpn_split", "network", "bluetooth", "volume", "brightness", "battery", "control-center", "session"]
+
+# Widgets dos plugins deste repo (noctalia-plugins/)
+[widget.vpn_split]
+type = "zmiguel/wg-split:bar"
+
+[widget.spotify_now]
+type = "zmiguel/spotify:bar"
+
+# ── Plugins ───────────────────────────────────────────────────────────────────
+# zmiguel/* são copiados pelo install.sh para ~/.local/share/noctalia/plugins/.
+
+[plugins]
+enabled = ["zmiguel/wg-split", "zmiguel/spotify"]
+auto_update = "official"
