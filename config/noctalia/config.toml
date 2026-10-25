@@ -13,8 +13,6 @@ time_format = "{:%H:%M}"
 date_format = "%A, %d/%m"
 clipboard_enabled = true
 umbriel_overview_type_to_launch_enabled = true
-umbriel_overview_close_on_launch_enabled = true
-umbriel_audio_provider_enabled = false
 
 # Copy wallpaper, palette, font and monitor layout to the login screen on every change.
 [shell.greeter_sync]
