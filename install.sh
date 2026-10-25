@@ -160,7 +160,7 @@ install_configs() {
         xdg-user-dirs-update
     fi
     if [[ ! -f "$HOME/wallpapers/blackhole.png" ]]; then
-        warn "~/wallpapers/blackhole.png is missing; add it to the repo's wallpapers/ (Noctalia falls back to its own)"
+        warn "$HOME/wallpapers/blackhole.png is missing; add it to the repo's wallpapers/ (Noctalia falls back to its own)"
     fi
 }
 
@@ -223,7 +223,7 @@ setup_firefox_vpn_profile() {
 install_wgsplit() {
     step "wgsplit (per-app split tunnel)"
     install -Dm755 "$REPO/wgsplit/wgsplit" "$HOME/.local/bin/wgsplit"
-    ok "~/.local/bin/wgsplit"
+    ok "$HOME/.local/bin/wgsplit"
 
     sudo install -Dm755 -o root -g root "$REPO/wgsplit/wgsplit-root" /usr/local/bin/wgsplit-root
     ok "/usr/local/bin/wgsplit-root"
