@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+# wgsplit — per-application WireGuard split tunneling.
+#
+# Apps launched with `wgsplit run` live in the systemd --user slice
+# wgsplit.slice; wgsplit-root routes only that slice's sockets through the
+# WireGuard interface. Everything else keeps using the normal connection.
+#
+#   wgsplit up | down [--keep-killswitch] | toggle [--keep-killswitch]
+#   wgsplit run [--force] <command> [args...]
+#   wgsplit attach <pid|process-name>...
+#   wgsplit status [--json] | ps
+set -euo pipefail
+
+IFACE="wgsplit"
+MARK="0x5157"
+ROOT_HELPER="/usr/local/bin/wgsplit-root"
+ANCHOR="wgsplit-anchor.service"
+SLICE="wgsplit.slice"
+UID_NUM="$(id -u)"
+SLICE_DIR="/sys/fs/cgroup/user.slice/user-$UID_NUM.slice/user@$UID_NUM.service/$SLICE"
+
+die() {
+    echo "wgsplit: $*" >&2
+    exit 1
+}
+
+is_up() {
+    [[ -d "/sys/class/net/$IFACE" ]]
+}
+
+has_rules() {
+    ip -4 rule show 2>/dev/null | grep -q "fwmark $MARK"
+}
+
+ensure_anchor() {
+    systemctl --user start "$ANCHOR" || die "could not start $ANCHOR"
+}
+
+root() {
+    sudo -n "$ROOT_HELPER" "$@" || die "sudo $ROOT_HELPER $1 failed (is /etc/sudoers.d/wgsplit installed?)"
+}
+
+cmd_up() {
+    ensure_anchor
+    root up "$UID_NUM"
+}
+
+cmd_down() {
+    root down "$@"
+}
+
+cmd_toggle() {
+    if is_up; then
+        cmd_down "$@"
+    else
+        cmd_up
+    fi
+}
+
+cmd_run() {
+    local force=0
+    if [[ "${1:-}" == "--force" ]]; then
+        force=1
+        shift
+    fi
+    [[ $# -gt 0 ]] || die "usage: wgsplit run [--force] <command> [args...]"
+    command -v "$1" >/dev/null || die "command not found: $1"
+    if ! is_up && ! has_rules && [[ $force -eq 0 ]]; then
+        die "tunnel is down, so '$1' would use the normal connection; run 'wgsplit up' first or pass --force"
+    fi
+    ensure_anchor
+    exec systemd-run --user --scope --quiet --collect --slice="$SLICE" -- "$@"
+}
+
+cmd_attach() {
+    [[ $# -gt 0 ]] || die "usage: wgsplit attach <pid|process-name>..."
+    ensure_anchor
+
+    local target pids=()
+    for target in "$@"; do
+        if [[ "$target" =~ ^[0-9]+$ ]]; then
+            pids+=("$target")
+        else
+            mapfile -t -O "${#pids[@]}" pids < <(pgrep -u "$UID_NUM" -x -- "$target" || true)
+        fi
+    done
+    [[ ${#pids[@]} -gt 0 ]] || die "no matching processes for: $*"
+
+    # A transient scope adopts already-running processes, like `systemd-run --scope` does for its own.
+    local unit="wgsplit-attach-$$-$RANDOM.scope"
+    busctl --user call org.freedesktop.systemd1 /org/freedesktop/systemd1 \
+        org.freedesktop.systemd1.Manager StartTransientUnit 'ssa(sv)a(sa(sv))' \
+        "$unit" fail 2 PIDs au "${#pids[@]}" "${pids[@]}" Slice s "$SLICE" 0 >/dev/null \
+        || die "systemd refused to move ${pids[*]} into $SLICE"
+    echo "moved ${#pids[@]} process(es) into $SLICE; only connections opened from now on use the tunnel"
+}
+
+# Prints "comm<TAB>pid" for every process in the slice except the anchor itself.
+slice_procs() {
+    [[ -d "$SLICE_DIR" ]] || return 0
+    local anchor_pid procs pid comm
+    anchor_pid="$(systemctl --user show -p MainPID --value "$ANCHOR" 2>/dev/null || echo 0)"
+    while IFS= read -r procs; do
+        while IFS= read -r pid; do
+            [[ -z "$pid" || "$pid" == "$anchor_pid" ]] && continue
+            comm="$(cat "/proc/$pid/comm" 2>/dev/null)" || continue
+            printf '%s\t%s\n' "$comm" "$pid"
+        done < "$procs"
+    done < <(find "$SLICE_DIR" -name cgroup.procs 2>/dev/null)
+}
+
+cmd_status_json() {
+    local up=false rules=false stats="" endpoint="" handshake=0 rx=0 tx=0 stats_error=""
+    is_up && up=true
+    has_rules && rules=true
+
+    if [[ $up == true ]]; then
+        if stats="$(sudo -n "$ROOT_HELPER" stats 2>&1)"; then
+            # Line 1 is the interface; line 2 is the first peer:
+            # pubkey psk endpoint allowed-ips latest-handshake rx tx keepalive
+            read -r _ _ endpoint _ handshake rx tx _ < <(sed -n 2p <<<"$stats") || true
+            [[ "$endpoint" == "(none)" ]] && endpoint=""
+        else
+            stats_error="$stats"
+        fi
+    fi
+
+    slice_procs | jq -R -s \
+        --argjson up "$up" --argjson rules "$rules" \
+        --arg iface "$IFACE" --arg endpoint "$endpoint" \
+        --argjson handshake "${handshake:-0}" --argjson rx "${rx:-0}" --argjson tx "${tx:-0}" \
+        --arg stats_error "$stats_error" '
+        (split("\n") | map(select(length > 0) | split("\t") | {name: .[0], pid: (.[1] | tonumber)})) as $procs
+        | {
+            up: $up,
+            killswitch: ($rules and ($up | not)),
+            interface: $iface,
+            endpoint: $endpoint,
+            latest_handshake: $handshake,
+            rx_bytes: $rx,
+            tx_bytes: $tx,
+            stats_error: $stats_error,
+            apps: ($procs | group_by(.name) | map({name: .[0].name, pids: map(.pid)}))
+          }'
+}
+
+cmd_status() {
+    if [[ "${1:-}" == "--json" ]]; then
+        cmd_status_json
+        return
+    fi
+    if is_up; then
+        echo "tunnel: up ($IFACE)"
+    elif has_rules; then
+        echo "tunnel: down, kill switch active (tunneled apps are offline)"
+    else
+        echo "tunnel: down"
+    fi
+    echo "apps in $SLICE:"
+    slice_procs | sort | awk -F'\t' '{ printf "  %-20s %s\n", $1, $2 }'
+}
+
+case "${1:-}" in
+    up) cmd_up ;;
+    down) shift; cmd_down "$@" ;;
+    toggle) shift; cmd_toggle "$@" ;;
+    run) shift; cmd_run "$@" ;;
+    attach) shift; cmd_attach "$@" ;;
+    status) shift; cmd_status "$@" ;;
+    ps) slice_procs | sort ;;
+    *)
+        sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+        exit 2
+        ;;
+esac

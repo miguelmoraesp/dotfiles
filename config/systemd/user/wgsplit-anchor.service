@@ -1,0 +1,13 @@
+# Keeps wgsplit.slice alive. nftables resolves the slice's cgroup when the
+# split-tunnel rules load, so the slice must exist before `wgsplit up` and
+# must not be torn down and recreated while the rules are active.
+[Unit]
+Description=Anchor for the wgsplit split-tunnel slice
+
+[Service]
+Slice=wgsplit.slice
+ExecStart=/usr/bin/sleep infinity
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# wgsplit-root — privileged half of wgsplit.
+#
+# Brings a WireGuard interface up without touching the default route, then
+# installs nftables + policy routing so only sockets created inside the user's
+# wgsplit.slice (systemd --user) leave through the tunnel:
+#
+#   socket cgroupv2 == wgsplit.slice  ->  fwmark 0x5157  ->  table 5157  ->  dev wgsplit
+#
+# Installed to /usr/local/bin/wgsplit-root and allowed through sudoers for the
+# desktop user only. Called by ~/.local/bin/wgsplit; not meant to be run by hand.
+set -euo pipefail
+
+IFACE="wgsplit"
+CONF="/etc/wireguard/${IFACE}.conf"
+MARK="0x5157"
+TABLE="5157"
+PRIO="5157"
+NFT_TABLE="wgsplit"
+ALLOW_LAN="1"
+
+# Optional overrides (IFACE, CONF, ALLOW_LAN). Root-owned, so sudo can't be used to inject them.
+if [[ -r /etc/wgsplit.env ]]; then
+    # shellcheck disable=SC1091
+    source /etc/wgsplit.env
+fi
+
+die() {
+    echo "wgsplit-root: $*" >&2
+    exit 1
+}
+
+[[ $EUID -eq 0 ]] || die "must run as root (use: wgsplit up)"
+
+target_uid() {
+    local uid="${1:-}"
+    [[ "$uid" =~ ^[0-9]+$ ]] || die "invalid uid '$uid'"
+    if [[ -n "${SUDO_UID:-}" && "$uid" != "$SUDO_UID" ]]; then
+        die "uid $uid does not match the calling user ($SUDO_UID)"
+    fi
+    echo "$uid"
+}
+
+slice_path() {
+    echo "user.slice/user-$1.slice/user@$1.service/wgsplit.slice"
+}
+
+conf_values() {
+    # Prints every value of an [Interface] key, one per line (comma lists split).
+    awk -v key="$1" '
+        /^[[:space:]]*\[/ { in_iface = ($0 ~ /^[[:space:]]*\[Interface\]/) ; next }
+        in_iface {
+            line = $0
+            sub(/#.*/, "", line)
+            if (match(line, "^[[:space:]]*" key "[[:space:]]*=")) {
+                val = substr(line, RLENGTH + 1)
+                n = split(val, parts, ",")
+                for (i = 1; i <= n; i++) {
+                    gsub(/^[[:space:]]+|[[:space:]]+$/, "", parts[i])
+                    if (parts[i] != "") print parts[i]
+                }
+            }
+        }
+    ' IGNORECASE=1 "$CONF"
+}
+
+del_rules() {
+    local fam
+    for fam in -4 -6; do
+        while ip "$fam" rule del priority "$PRIO" 2>/dev/null; do :; done
+        while ip "$fam" rule del priority "$((PRIO - 1))" 2>/dev/null; do :; done
+        ip "$fam" route flush table "$TABLE" 2>/dev/null || true
+    done
+    nft delete table inet "$NFT_TABLE" 2>/dev/null || true
+}
+
+add_rules() {
+    local uid="$1" has_v6="$2" slice fam
+    slice="$(slice_path "$uid")"
+    [[ -d "/sys/fs/cgroup/$slice" ]] \
+        || die "/sys/fs/cgroup/$slice is missing; start it with: systemctl --user start wgsplit-anchor.service"
+
+    del_rules
+    modprobe -q nft_socket 2>/dev/null || true
+
+    # The unreachable fallback is the kill switch: with the interface gone, marked
+    # traffic hits it instead of falling through to the main table.
+    ip -4 route replace default dev "$IFACE" table "$TABLE"
+    ip -4 route replace unreachable default metric 4096 table "$TABLE"
+    if [[ "$has_v6" == 1 ]]; then
+        ip -6 route replace default dev "$IFACE" table "$TABLE"
+    fi
+    ip -6 route replace unreachable default metric 4096 table "$TABLE"
+
+    for fam in -4 -6; do
+        if [[ "$ALLOW_LAN" == 1 ]]; then
+            # Keep LAN/link routes from the main table, but never its default route.
+            ip "$fam" rule add fwmark "$MARK" table main suppress_prefixlength 0 priority "$((PRIO - 1))"
+        fi
+        ip "$fam" rule add fwmark "$MARK" table "$TABLE" priority "$PRIO"
+    done
+
+    # cgroupv2 paths are resolved when the rule loads, so the slice must already
+    # exist and stay alive (wgsplit-anchor.service keeps it).
+    nft -f - <<EOF
+table inet $NFT_TABLE {
+    chain output {
+        type route hook output priority mangle; policy accept;
+        socket cgroupv2 level 4 "$slice" meta mark set $MARK ct mark set meta mark
+    }
+    chain prerouting {
+        type filter hook prerouting priority mangle; policy accept;
+        ct mark $MARK meta mark set ct mark
+    }
+    chain postrouting {
+        type nat hook postrouting priority srcnat; policy accept;
+        oifname "$IFACE" meta mark $MARK masquerade
+    }
+}
+EOF
+}
+
+iface_up() {
+    [[ -f "$CONF" ]] || die "$CONF not found (copy your provider's WireGuard config there, mode 600)"
+
+    ip link del "$IFACE" 2>/dev/null || true
+    ip link add "$IFACE" type wireguard
+    wg setconf "$IFACE" <(wg-quick strip "$CONF")
+
+    local addr has_v6=0 mtu
+    while read -r addr; do
+        [[ -z "$addr" ]] && continue
+        if [[ "$addr" == *:* ]]; then
+            ip -6 address add "$addr" dev "$IFACE"
+            has_v6=1
+        else
+            ip -4 address add "$addr" dev "$IFACE"
+        fi
+    done < <(conf_values Address)
+
+    mtu="$(conf_values MTU | head -n1)"
+    ip link set mtu "${mtu:-1420}" up dev "$IFACE"
+    sysctl -q net.ipv4.conf.all.src_valid_mark=1
+    echo "$has_v6"
+}
+
+cmd_up() {
+    local uid has_v6
+    uid="$(target_uid "${1:-}")"
+    has_v6="$(iface_up)"
+    if ! add_rules "$uid" "$has_v6"; then
+        ip link del "$IFACE" 2>/dev/null || true
+        die "failed to install routing rules"
+    fi
+}
+
+cmd_down() {
+    ip link del "$IFACE" 2>/dev/null || true
+    if [[ "${1:-}" == "--keep-killswitch" ]]; then
+        # Rules stay: tunneled apps now hit the unreachable route instead of leaking.
+        return 0
+    fi
+    del_rules
+}
+
+cmd_stats() {
+    [[ -d "/sys/class/net/$IFACE" ]] || exit 3
+    wg show "$IFACE" dump
+}
+
+case "${1:-}" in
+    up) shift; cmd_up "$@" ;;
+    down) shift; cmd_down "$@" ;;
+    stats) cmd_stats ;;
+    *) die "usage: wgsplit-root up <uid> | down [--keep-killswitch] | stats" ;;
+esac
