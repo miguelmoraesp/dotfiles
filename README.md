@@ -18,7 +18,7 @@ reboot
 
 `install.sh`:
 
-1. installs `packages/pacman.txt` and, through `paru` (bootstrapped if missing), `packages/aur.txt`;
+1. installs `packages/pacman.txt` and, through `yay` (built from source if missing), `packages/aur.txt`;
 2. copies `config/` into `~/.config/`, `home/` into `~`, and `wallpapers/` into `~/wallpapers`
    (anything different already there is kept as `*.bak-<date>`);
 3. copies `noctalia-plugins/` into `~/.local/share/noctalia/plugins/`;
