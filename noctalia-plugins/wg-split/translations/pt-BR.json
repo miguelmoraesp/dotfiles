@@ -1,0 +1,92 @@
+{
+  "title": "WireGuard Split",
+  "errors": {
+    "bad_status": "wgsplit status devolveu um JSON inválido.",
+    "cli_missing": "wgsplit não encontrado em {path}. Rode o install.sh das dotfiles.",
+    "command_failed": "O comando wgsplit falhou.",
+    "not_found": "Comando não encontrado: {command}",
+    "tunnel_down": "O túnel está desligado, então {command} usaria a conexão normal. Ligue o túnel antes."
+  },
+  "launcher": {
+    "configured": "App configurado",
+    "connect": "Ligar túnel WireGuard",
+    "custom": "Rodar este comando pelo túnel",
+    "disconnect": "Desligar túnel WireGuard",
+    "open_panel": "Abrir painel do split tunnel",
+    "run": "Abrir {command} pela VPN"
+  },
+  "notifications": {
+    "attached": "{target} movido para o túnel. Só conexões novas passam por ele.",
+    "down": "Túnel desligado. Os apps usam a conexão normal.",
+    "down_killswitch": "Túnel desligado. O kill switch está bloqueando os apps do túnel.",
+    "launched": "{command} aberto pelo túnel.",
+    "released": "Kill switch desligado. Os apps do túnel usam a conexão normal.",
+    "up": "Túnel ligado."
+  },
+  "panel": {
+    "apps": "Apps pelo túnel",
+    "apps_empty": "Nenhum app configurado. Adicione comandos nas configurações do plugin.",
+    "attach": "Mover app já aberto",
+    "attach_button": "Mover",
+    "attach_hint": "Nome do processo ou PID. As conexões que ele já tem continuam onde estão; ao reconectar, passam pelo túnel.",
+    "attach_placeholder": "spotify, firefox, 1234…",
+    "endpoint": "Endpoint",
+    "handshake": "Último handshake",
+    "hours_ago": "há {n} h",
+    "in_tunnel": "No túnel agora",
+    "in_tunnel_empty": "Nada está usando o túnel.",
+    "killswitch_hint": "Os apps abertos pelo túnel ficam sem rede até você religar o túnel ou liberá-los.",
+    "launch": "Abrir pelo túnel",
+    "minutes_ago": "há {n} min",
+    "never": "nunca",
+    "processes": {
+      "one": "{count} processo",
+      "other": "{count} processos"
+    },
+    "refresh": "Atualizar",
+    "release": "Liberar apps (desligar kill switch)",
+    "run": "Rodar",
+    "run_placeholder": "Comando para rodar pelo túnel",
+    "seconds_ago": "há {n} s",
+    "settings": "Configurações do plugin",
+    "state_down": "Túnel desligado",
+    "state_killswitch": "Túnel desligado, kill switch ativo",
+    "state_up": "Túnel ligado",
+    "traffic": "Tráfego",
+    "unavailable": "wgsplit indisponível",
+    "unavailable_hint": "Instale o wgsplit com o install.sh das dotfiles e coloque a config do WireGuard em /etc/wireguard/wgsplit.conf."
+  },
+  "settings": {
+    "apps": {
+      "description": "Comandos listados no painel e no launcher. Se o app já estiver aberto, o comando só abre uma janela no processo existente, que não passa pelo túnel: use instâncias separadas (por exemplo firefox --new-instance -P vpn).",
+      "label": "Apps"
+    },
+    "auto_up": {
+      "description": "Ligar o túnel quando o Noctalia iniciar.",
+      "label": "Conectar ao iniciar"
+    },
+    "cli": {
+      "description": "Caminho da CLI wgsplit.",
+      "label": "Caminho do wgsplit"
+    },
+    "kill_switch": {
+      "description": "Ao desligar o túnel, manter os apps do túnel sem rede em vez de voltar para a conexão normal.",
+      "label": "Kill switch"
+    },
+    "notify": {
+      "label": "Notificações"
+    },
+    "poll_interval_seconds": {
+      "description": "De quanto em quanto tempo o estado do túnel é lido.",
+      "label": "Intervalo de atualização (s)"
+    }
+  },
+  "shortcut": {
+    "label": "VPN split"
+  },
+  "tooltip": {
+    "processes": "Processos",
+    "state": "Estado",
+    "unavailable": "wgsplit indisponível"
+  }
+}

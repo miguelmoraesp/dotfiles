@@ -1,0 +1,45 @@
+{
+  "errors": {
+    "no_playerctl": "O playerctl não está instalado."
+  },
+  "panel": {
+    "copy_link": "Copiar link da música",
+    "link_copied": "Link da música copiado.",
+    "not_running": "O Spotify não está aberto.",
+    "open": "Abrir Spotify",
+    "open_vpn": "Abrir pela VPN",
+    "restart_vpn": "Abrir outro Spotify pela VPN (feche este antes)",
+    "show_window": "Mostrar ou esconder a janela do Spotify"
+  },
+  "settings": {
+    "hide_when_idle": {
+      "description": "Esconder o widget enquanto o Spotify estiver fechado.",
+      "label": "Esconder quando parado"
+    },
+    "launch_command": {
+      "description": "Comando que abre o Spotify.",
+      "label": "Comando de abertura"
+    },
+    "max_length": {
+      "label": "Tamanho máximo do texto"
+    },
+    "player": {
+      "description": "Nome do player MPRIS passado para playerctl -p.",
+      "label": "Player"
+    },
+    "scratchpad": {
+      "description": "Scratchpad do Umbriel onde fica a janela do Spotify. Deixe vazio para só rodar o comando de abertura.",
+      "label": "Scratchpad"
+    },
+    "show_vpn_launch": {
+      "description": "Mostrar botões que abrem o Spotify pelo túnel do zmiguel/wg-split.",
+      "label": "Botões de abrir pela VPN"
+    }
+  },
+  "tooltip": {
+    "album": "Álbum",
+    "artist": "Artista",
+    "idle": "Spotify fechado",
+    "title": "Título"
+  }
+}

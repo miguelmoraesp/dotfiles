@@ -1,0 +1,76 @@
+# Spotify for Noctalia on Umbriel: a now-playing bar widget and a panel with
+# artwork, progress and controls. A service follows `playerctl --follow` and
+# publishes the track to the other entries. Spotify's window lives in Umbriel's
+# "music" scratchpad, and it can be started through the zmiguel/wg-split tunnel.
+
+id           = "zmiguel/spotify"
+name         = "Spotify"
+version      = "1.0.0"
+plugin_api   = 24
+author       = "zmiguel"
+license      = "MIT"
+icon         = "brand-spotify"
+description  = "Spotify now-playing widget and panel, with Umbriel scratchpad and VPN launch integration."
+tags         = ["bar", "panel", "service", "media", "spotify", "umbriel"]
+dependencies = ["playerctl", "spotify-launcher", "umbriel"]
+
+[[setting]]
+key = "player"
+type = "string"
+label_key = "settings.player.label"
+description_key = "settings.player.description"
+default = "spotify"
+advanced = true
+
+[[setting]]
+key = "launch_command"
+type = "string"
+label_key = "settings.launch_command.label"
+description_key = "settings.launch_command.description"
+default = "spotify-launcher"
+
+[[setting]]
+key = "scratchpad"
+type = "string"
+label_key = "settings.scratchpad.label"
+description_key = "settings.scratchpad.description"
+default = "music"
+
+[[setting]]
+key = "show_vpn_launch"
+type = "bool"
+label_key = "settings.show_vpn_launch.label"
+description_key = "settings.show_vpn_launch.description"
+default = true
+
+[[service]]
+id = "service"
+entry = "service.luau"
+
+[[widget]]
+id = "bar"
+entry = "bar.luau"
+
+  [[widget.setting]]
+  key = "max_length"
+  type = "int"
+  label_key = "settings.max_length.label"
+  default = 40
+  min = 10
+  max = 120
+
+  [[widget.setting]]
+  key = "hide_when_idle"
+  type = "bool"
+  label_key = "settings.hide_when_idle.label"
+  description_key = "settings.hide_when_idle.description"
+  default = true
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 360
+height = 540
+placement = "attached"
+position = "auto"
+open_near_click = true

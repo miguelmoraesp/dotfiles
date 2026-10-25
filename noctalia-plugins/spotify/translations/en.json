@@ -1,0 +1,45 @@
+{
+  "errors": {
+    "no_playerctl": "playerctl is not installed."
+  },
+  "panel": {
+    "copy_link": "Copy track link",
+    "link_copied": "Track link copied.",
+    "not_running": "Spotify is not running.",
+    "open": "Open Spotify",
+    "open_vpn": "Open through VPN",
+    "restart_vpn": "Start another Spotify through the VPN (close this one first)",
+    "show_window": "Show or hide the Spotify window"
+  },
+  "settings": {
+    "hide_when_idle": {
+      "description": "Hide the widget while Spotify is closed.",
+      "label": "Hide when idle"
+    },
+    "launch_command": {
+      "description": "Command that starts Spotify.",
+      "label": "Launch command"
+    },
+    "max_length": {
+      "label": "Maximum text length"
+    },
+    "player": {
+      "description": "MPRIS player name passed to playerctl -p.",
+      "label": "Player"
+    },
+    "scratchpad": {
+      "description": "Umbriel scratchpad that holds the Spotify window. Leave empty to just run the launch command.",
+      "label": "Scratchpad"
+    },
+    "show_vpn_launch": {
+      "description": "Show buttons that start Spotify through the zmiguel/wg-split tunnel.",
+      "label": "VPN launch buttons"
+    }
+  },
+  "tooltip": {
+    "album": "Album",
+    "artist": "Artist",
+    "idle": "Spotify closed",
+    "title": "Title"
+  }
+}

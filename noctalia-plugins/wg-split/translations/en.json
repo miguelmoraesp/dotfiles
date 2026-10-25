@@ -1,0 +1,92 @@
+{
+  "title": "WireGuard Split",
+  "errors": {
+    "bad_status": "wgsplit status returned invalid JSON.",
+    "cli_missing": "wgsplit not found at {path}. Run the dotfiles install.sh.",
+    "command_failed": "wgsplit command failed.",
+    "not_found": "Command not found: {command}",
+    "tunnel_down": "The tunnel is off, so {command} would use the normal connection. Turn it on first."
+  },
+  "launcher": {
+    "configured": "Configured app",
+    "connect": "Turn WireGuard tunnel on",
+    "custom": "Run this command through the tunnel",
+    "disconnect": "Turn WireGuard tunnel off",
+    "open_panel": "Open split tunnel panel",
+    "run": "Run {command} through VPN"
+  },
+  "notifications": {
+    "attached": "Moved {target} into the tunnel. Only new connections use it.",
+    "down": "Tunnel off. Apps use the normal connection.",
+    "down_killswitch": "Tunnel off. Kill switch is blocking tunneled apps.",
+    "launched": "{command} started through the tunnel.",
+    "released": "Kill switch off. Tunneled apps use the normal connection.",
+    "up": "Tunnel on."
+  },
+  "panel": {
+    "apps": "Apps through the tunnel",
+    "apps_empty": "No apps configured. Add commands in the plugin settings.",
+    "attach": "Move a running app",
+    "attach_button": "Move",
+    "attach_hint": "Process name or PID. Connections it already has stay where they are; reconnecting moves them.",
+    "attach_placeholder": "spotify, firefox, 1234…",
+    "endpoint": "Endpoint",
+    "handshake": "Last handshake",
+    "hours_ago": "{n} h ago",
+    "in_tunnel": "In the tunnel now",
+    "in_tunnel_empty": "Nothing is using the tunnel.",
+    "killswitch_hint": "Apps started through the tunnel are offline until you turn it back on or release them.",
+    "launch": "Launch through the tunnel",
+    "minutes_ago": "{n} min ago",
+    "never": "never",
+    "processes": {
+      "one": "{count} process",
+      "other": "{count} processes"
+    },
+    "refresh": "Refresh",
+    "release": "Release apps (kill switch off)",
+    "run": "Run",
+    "run_placeholder": "Command to run through the tunnel",
+    "seconds_ago": "{n} s ago",
+    "settings": "Plugin settings",
+    "state_down": "Tunnel off",
+    "state_killswitch": "Tunnel off, kill switch active",
+    "state_up": "Tunnel on",
+    "traffic": "Traffic",
+    "unavailable": "wgsplit unavailable",
+    "unavailable_hint": "Install wgsplit with the dotfiles install.sh and put your WireGuard config in /etc/wireguard/wgsplit.conf."
+  },
+  "settings": {
+    "apps": {
+      "description": "Commands listed in the panel and launcher. A command whose app is already running opens a window in that process, which is not tunneled: use separate instances (for example firefox --new-instance -P vpn).",
+      "label": "Apps"
+    },
+    "auto_up": {
+      "description": "Turn the tunnel on when Noctalia starts.",
+      "label": "Connect on startup"
+    },
+    "cli": {
+      "description": "Path to the wgsplit CLI.",
+      "label": "wgsplit path"
+    },
+    "kill_switch": {
+      "description": "When the tunnel is turned off, keep tunneled apps offline instead of falling back to the normal connection.",
+      "label": "Kill switch"
+    },
+    "notify": {
+      "label": "Notifications"
+    },
+    "poll_interval_seconds": {
+      "description": "How often the tunnel state is read.",
+      "label": "Refresh interval (s)"
+    }
+  },
+  "shortcut": {
+    "label": "VPN split"
+  },
+  "tooltip": {
+    "processes": "Processes",
+    "state": "State",
+    "unavailable": "wgsplit unavailable"
+  }
+}

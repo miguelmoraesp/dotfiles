@@ -1,0 +1,88 @@
+# WireGuard split tunnel: a bar shield, a panel, a control-center tile and a
+# `/vpn` launcher provider, all driven by one service that wraps the `wgsplit`
+# CLI from this repo (wgsplit/). Apps launched through it live in the
+# systemd --user wgsplit.slice and are the only traffic routed through the tunnel.
+
+id           = "zmiguel/wg-split"
+name         = "WireGuard Split Tunnel"
+version      = "1.0.0"
+plugin_api   = 24
+author       = "zmiguel"
+license      = "MIT"
+icon         = "shield-lock"
+description  = "Route only chosen applications through a WireGuard tunnel, with a kill switch."
+tags         = ["bar", "panel", "launcher", "service", "shortcut", "network", "vpn", "privacy"]
+dependencies = ["wgsplit", "wireguard-tools", "nftables", "jq", "sudo"]
+
+[[setting]]
+key = "apps"
+type = "string_list"
+label_key = "settings.apps.label"
+description_key = "settings.apps.description"
+default = ["spotify-launcher", "firefox --new-instance -P vpn"]
+
+[[setting]]
+key = "kill_switch"
+type = "bool"
+label_key = "settings.kill_switch.label"
+description_key = "settings.kill_switch.description"
+default = true
+
+[[setting]]
+key = "auto_up"
+type = "bool"
+label_key = "settings.auto_up.label"
+description_key = "settings.auto_up.description"
+default = false
+
+[[setting]]
+key = "notify"
+type = "bool"
+label_key = "settings.notify.label"
+default = true
+
+[[setting]]
+key = "poll_interval_seconds"
+type = "int"
+label_key = "settings.poll_interval_seconds.label"
+description_key = "settings.poll_interval_seconds.description"
+default = 5
+min = 2
+max = 60
+advanced = true
+
+[[setting]]
+key = "cli"
+type = "file"
+label_key = "settings.cli.label"
+description_key = "settings.cli.description"
+default = "~/.local/bin/wgsplit"
+advanced = true
+
+[[service]]
+id = "service"
+entry = "service.luau"
+
+[[widget]]
+id = "bar"
+entry = "bar.luau"
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 400
+height = 560
+placement = "attached"
+position = "auto"
+open_near_click = true
+
+[[shortcut]]
+id = "toggle"
+entry = "shortcut.luau"
+
+[[launcher_provider]]
+id                       = "launcher"
+entry                    = "launcher.luau"
+prefix                   = "vpn"
+glyph                    = "shield-lock"
+include_in_global_search = false
