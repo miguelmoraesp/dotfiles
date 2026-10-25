@@ -39,6 +39,7 @@ Configs are **copied**, not symlinked: Noctalia's theme templates rewrite `umbri
 | --- | --- |
 | `config/umbriel/config.toml` | Compositor: binds, window rules, scratchpads, blur |
 | `config/noctalia/config.toml` | Shell: bar, theme, templates, wallpaper, idle, greeter sync, plugins |
+| `config/noctalia/palettes/VioletNoir.json` | The purple, black and white color palette (dark and light) |
 | `config/kitty`, `config/starship.toml`, `config/gtk-*` | Apps; colors come from Noctalia's templates |
 | `config/environment.d/10-wayland.conf` | Session environment (Qt/Electron on Wayland, cursor, `~/.local/bin` on PATH) |
 | `config/spotify-launcher.conf` | Spotify as a native Wayland client |
@@ -70,7 +71,7 @@ The binds from the old `hyprland.conf` are kept. `Mod` is Super.
 | `Mod+O` or the top-left corner | Overview |
 | `Mod+A` · `Mod+N` · `Mod+M` | Control center · Noctalia settings · session menu |
 | `Mod+Shift+S` / `Print` | Region screenshot (`Mod+Print` full screen, `Mod+Shift+A` annotate) |
-| `Mod+Shift+V` · `Mod+Shift+P` | Clipboard · wallpaper |
+| `Mod+Shift+V` · `Mod+Shift+P` · `Mod+Ctrl+P` | Clipboard · wallpaper picker · Wallhaven browser |
 | `Mod+Shift+L` | Lock screen |
 | `Mod+Space` / `Mod+Shift+Space` | General scratchpad: show / send window |
 | `Mod+S` | Spotify scratchpad (starts Spotify if it is closed) |
@@ -136,11 +137,18 @@ Caveats:
   Comfy theme and a path unit that re-applies it after each Spotify update; then add `"spicetify"` to
   `community_ids` so its colors follow Noctalia.
 
-## Theme
+## Theme and bar
 
-Colors come from Noctalia (`[theme]` in `config/noctalia/config.toml`) and are applied by the `umbriel`, `kitty`,
-`gtk3`, `gtk4`, `qt`, `btop` and `starship` templates, and to the greeter by greeter sync. To follow the wallpaper
-instead, set `source = "wallpaper"` (`wallpaper_scheme = "m3-monochrome"` is close to the old gray setup).
+The palette is **VioletNoir** (`config/noctalia/palettes/VioletNoir.json`): a near-black, slightly violet
+background, purple accents and white text, with a light variant and matching terminal colors. Every text/background
+pair meets WCAG AA (4.5:1 or better). Noctalia applies it to the shell and, through the `umbriel`, `kitty`, `gtk3`,
+`gtk4`, `qt`, `btop` and `starship` templates, to the apps; greeter sync carries it to the login screen. To follow the
+wallpaper instead, set `source = "wallpaper"` in `[theme]`.
+
+The bar keeps the right side to icons only: Spotify, the split-tunnel shield, tray, network, volume, notifications
+and power. Clipboard, bluetooth and the other quick settings live in the control center (`Mod+A`, or click the
+network icon). On the left, next to the launcher, the photo icon opens the official **Wallhaven** browser
+(`noctalia/wallhaven`): search wallpapers, download them into `~/wallpapers` and apply them.
 
 ## CI
 
