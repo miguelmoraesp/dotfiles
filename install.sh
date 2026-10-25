@@ -101,12 +101,16 @@ sudo_install_file() {
     sudo install -Dm"$mode" -o "$owner" -g "$owner" "$src" "$dest"
 }
 
+# Prints the first AUR helper that actually runs (a prebuilt one linked against an
+# older libalpm is on PATH but fails to start).
 aur_helper() {
-    if command -v paru >/dev/null; then
-        echo paru
-    elif command -v yay >/dev/null; then
-        echo yay
-    fi
+    local helper
+    for helper in paru yay; do
+        if command -v "$helper" >/dev/null && "$helper" --version >/dev/null 2>&1; then
+            echo "$helper"
+            return
+        fi
+    done
 }
 
 # ── packages ──────────────────────────────────────────────────────────────────
@@ -121,13 +125,20 @@ install_packages() {
     local helper
     helper="$(aur_helper)"
     if [[ -z "$helper" ]]; then
-        local tmp
+        # Built from source so it links against the current libalpm; paru-bin lags behind pacman releases.
+        local tmp pkg
+        for pkg in paru-bin paru-bin-debug; do
+            if pacman -Q "$pkg" >/dev/null 2>&1; then
+                sudo pacman -Rns --noconfirm "$pkg" >/dev/null
+                warn "removed broken $pkg"
+            fi
+        done
         tmp="$(mktemp -d)"
-        git clone --depth 1 https://aur.archlinux.org/paru-bin.git "$tmp/paru-bin"
-        (cd "$tmp/paru-bin" && makepkg -si --noconfirm)
+        git clone --depth 1 https://aur.archlinux.org/paru.git "$tmp/paru"
+        (cd "$tmp/paru" && makepkg -si --noconfirm)
         rm -rf "$tmp"
         helper=paru
-        ok "installed paru"
+        ok "built and installed paru"
     fi
     mapfile -t aur < <(read_list "$REPO/packages/aur.txt")
     "$helper" -S --needed --noconfirm "${aur[@]}"
