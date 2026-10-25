@@ -22,11 +22,11 @@ auto_sync = true
 
 [theme]
 mode = "dark"
-source = "builtin"
-builtin = "Noctalia"
-# To derive the colors from the wallpaper (the old setup was all gray):
-# source = "wallpaper"
-# wallpaper_scheme = "m3-monochrome"
+# Purple, black and white: palettes/VioletNoir.json (dark and light variants).
+source = "custom"
+custom_palette = "VioletNoir"
+# Built-in alternative: source = "builtin" with builtin = "Noctalia".
+# Colors from the wallpaper: source = "wallpaper" with wallpaper_scheme = "m3-monochrome".
 
 [theme.templates]
 enable_builtin_templates = true
@@ -71,20 +71,41 @@ padding = 14
 widget_spacing = 6
 compositor_blur = true
 
-start = ["launcher", "workspaces", "active-window"]
+start = ["launcher", "wallhaven", "workspaces", "active-window"]
 center = ["clock"]
-end = ["spotify_now", "tray", "notifications", "clipboard", "vpn_split", "network", "bluetooth", "volume", "brightness", "battery", "control-center", "session"]
+# Icons only on the right. Clipboard, bluetooth and the rest stay in the control
+# center (Mod+A, or click the network icon) and behind their keybinds.
+end = ["spotify_now", "vpn_split", "tray", "network", "volume", "notifications", "session"]
 
-# Widgets from this repo's plugins (noctalia-plugins/)
+[widget.network]
+show_label = false
+
+[widget.volume]
+show_label = false
+
+[widget.session]
+glyph = "shutdown"
+
+# Plugin widgets: this repo's (noctalia-plugins/) and the official Wallhaven browser
 [widget.vpn_split]
 type = "zmiguel/wg-split:bar"
 
 [widget.spotify_now]
 type = "zmiguel/spotify:bar"
 
+[widget.wallhaven]
+type = "noctalia/wallhaven:wallhaven"
+
 # ── Plugins ───────────────────────────────────────────────────────────────────
 # zmiguel/* are copied by install.sh into ~/.local/share/noctalia/plugins/.
+# noctalia/wallhaven comes from the built-in official source (fetched on first start).
 
 [plugins]
-enabled = ["zmiguel/wg-split", "zmiguel/spotify"]
+enabled = ["zmiguel/wg-split", "zmiguel/spotify", "noctalia/wallhaven"]
 auto_update = "official"
+
+# Wallhaven saves into the wallpaper folder (~/wallpapers) unless download_dir is set.
+# NSFW results need an API key from https://wallhaven.cc/settings/account.
+# [plugin_settings."noctalia/wallhaven"]
+# api_key = ""
+# download_dir = "~/wallpapers/wallhaven"
