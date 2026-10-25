@@ -1,5 +1,8 @@
 # ~/.bashrc
 
+# Before the interactive check, so non-interactive shells (ssh host cmd, scripts) find wgsplit too.
+[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || export PATH="$HOME/.local/bin:$PATH"
+
 [[ $- != *i* ]] && return
 
 # Large, deduplicated history shared between terminals
@@ -8,8 +11,6 @@ HISTFILESIZE=100000
 HISTCONTROL=ignoreboth:erasedups
 shopt -s histappend checkwinsize globstar autocd
 PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
-
-[[ ":$PATH:" == *":$HOME/.local/bin:"* ]] || export PATH="$HOME/.local/bin:$PATH"
 
 alias ls='ls --color=auto --group-directories-first'
 alias ll='ls -lah'
