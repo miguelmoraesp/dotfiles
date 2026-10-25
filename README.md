@@ -1,132 +1,163 @@
 # dotfiles — Arch + Umbriel + Noctalia
 
-Ambiente Wayland em cima do [Umbriel](https://github.com/noctalia-dev/umbriel) (compositor) com o
-[Noctalia](https://github.com/noctalia-dev/noctalia) v5 como shell. O Noctalia substitui sozinho o que antes
-eram waybar, rofi, dunst, hyprpaper/waypaper, powermenu e flameshot: barra, launcher, notificações, wallpaper,
-lock screen, OSD, clipboard e prints.
+A Wayland desktop on [Umbriel](https://github.com/noctalia-dev/umbriel) (compositor) with
+[Noctalia](https://github.com/noctalia-dev/noctalia) v5 as the shell and
+[Noctalia Greeter](https://github.com/noctalia-dev/noctalia-greeter) on greetd as the login screen. Noctalia alone
+replaces what used to be waybar, rofi, dunst, hyprpaper/waypaper, a power menu and flameshot: bar, launcher,
+notifications, wallpaper, lock screen, OSD, clipboard and screenshots.
 
-## Instalação
+## Install
 
-Numa instalação limpa do Arch, com seu usuário no grupo `wheel`:
+On a fresh Arch install, with your user in the `wheel` group:
 
 ```sh
-git clone <este repo> ~/dotfiles && cd ~/dotfiles
-./install.sh --wg-conf ~/Downloads/minha-vpn.conf   # sem --wg-conf se não for usar o split tunnel agora
-start-umbriel                                       # a partir do TTY
+git clone https://github.com/miguelmoraesp/dotfiles ~/dotfiles && cd ~/dotfiles
+./install.sh --wg-conf ~/Downloads/my-vpn.conf   # drop --wg-conf if you are not using the split tunnel yet
+reboot
 ```
 
-O `install.sh`:
+`install.sh`:
 
-1. instala os pacotes de `packages/pacman.txt` e, via `paru` (instalado se faltar), os de `packages/aur.txt`;
-2. copia tudo de `config/` para `~/.config/` (arquivos diferentes viram `*.bak-<data>` antes);
-3. copia os plugins de `noctalia-plugins/` para `~/.local/share/noctalia/plugins/`;
-4. instala o `wgsplit` (CLI, helper root, regra de sudoers e a config do WireGuard);
-5. habilita NetworkManager, bluetooth, power-profiles-daemon, pipewire e o `wgsplit-anchor.service`.
+1. installs `packages/pacman.txt` and, through `paru` (bootstrapped if missing), `packages/aur.txt`;
+2. copies `config/` into `~/.config/`, `home/` into `~`, and `wallpapers/` into `~/wallpapers`
+   (anything different already there is kept as `*.bak-<date>`);
+3. copies `noctalia-plugins/` into `~/.local/share/noctalia/plugins/`;
+4. installs wgsplit (CLI, root helper, sudoers rule, WireGuard config) and the Firefox `vpn` profile;
+5. sets up greetd with Noctalia Greeter (Umbriel session and your user preselected, passwordless appearance sync)
+   and disables any other display manager;
+6. enables NetworkManager, bluetooth, power-profiles-daemon, AccountsService, PipeWire and `wgsplit-anchor.service`.
 
-Opções: `--no-packages`, `--no-configs`, `--no-plugins`, `--no-wgsplit`, `--no-services`, `--wg-conf <arquivo>`,
-`--spicetify`. Rodar de novo é seguro, então use `./install.sh --no-packages` para reaplicar as configs.
+Options: `--no-packages`, `--no-configs`, `--no-plugins`, `--no-wgsplit`, `--no-greeter`, `--no-services`,
+`--wg-conf <file>`, `--spicetify`. Re-running is safe; `./install.sh --no-packages` re-applies everything else.
 
-As configs são **copiadas**, não linkadas: os templates de tema do Noctalia reescrevem `umbriel/config.toml`,
-`kitty/kitty.conf`, `starship.toml` e o `gtk.css`, e com symlink essas edições cairiam dentro do repo.
+Configs are **copied**, not symlinked: Noctalia's theme templates rewrite `umbriel/config.toml`,
+`kitty/kitty.conf`, `starship.toml` and `gtk.css`, and through a symlink those edits would land in the repo.
 
-## Estrutura
+## Layout
 
-| Caminho | O quê |
+| Path | What |
 | --- | --- |
-| `config/umbriel/config.toml` | Compositor: atalhos, regras de janela, scratchpads, blur |
-| `config/noctalia/config.toml` | Shell: barra, tema, templates, wallpaper, idle, plugins |
-| `config/kitty`, `config/starship.toml`, `config/gtk-*` | Apps; as cores vêm dos templates do Noctalia |
-| `config/environment.d/10-wayland.conf` | Variáveis da sessão (Qt/Electron em Wayland, cursor, `~/.local/bin` no PATH) |
-| `config/spotify-launcher.conf` | Spotify em Wayland nativo |
-| `config/systemd/user/wgsplit-anchor.service` | Mantém o `wgsplit.slice` vivo |
-| `noctalia-plugins/wg-split` | Plugin do split tunnel WireGuard |
-| `noctalia-plugins/spotify` | Plugin do Spotify |
-| `wgsplit/` | CLI `wgsplit` e o helper root `wgsplit-root` |
-| `packages/` | Listas de pacotes |
+| `config/umbriel/config.toml` | Compositor: binds, window rules, scratchpads, blur |
+| `config/noctalia/config.toml` | Shell: bar, theme, templates, wallpaper, idle, greeter sync, plugins |
+| `config/kitty`, `config/starship.toml`, `config/gtk-*` | Apps; colors come from Noctalia's templates |
+| `config/environment.d/10-wayland.conf` | Session environment (Qt/Electron on Wayland, cursor, `~/.local/bin` on PATH) |
+| `config/spotify-launcher.conf` | Spotify as a native Wayland client |
+| `config/systemd/user/wgsplit-*.service` | Keeps `wgsplit.slice` alive; DNS forwarder for the tunnel |
+| `home/.bashrc`, `home/.bash_profile` | Bash with Starship, history, aliases |
+| `system/` | greetd and Noctalia Greeter configs (installed by `install.sh`) |
+| `firefox/vpn-user.js` | Hardening for the Firefox `vpn` profile |
+| `extras/spicetify/` | Units that re-apply Spicetify after Spotify updates |
+| `noctalia-plugins/wg-split`, `noctalia-plugins/spotify` | This repo's Noctalia plugins |
+| `wgsplit/` | `wgsplit` CLI and the `wgsplit-root` helper |
+| `wallpapers/` | Wallpapers copied to `~/wallpapers` (add `blackhole.png` here) |
+| `packages/` | Package lists |
+| `tools/lint.py`, `.github/workflows/lint.yml` | CI checks |
 
-## Atalhos
+## Keybinds
 
-Os atalhos do `hyprland.conf` antigo foram mantidos. `Mod` é a tecla Super.
+The binds from the old `hyprland.conf` are kept. `Mod` is Super.
 
-| Atalho | Ação |
+| Bind | Action |
 | --- | --- |
-| `Mod` (sozinho) / `Mod+R` | Launcher |
+| `Mod` (alone) / `Mod+R` | Launcher |
 | `Mod+Q` / `Mod+Return` | Kitty |
-| `Mod+C` / `Mod+Shift+C` | Fechar / matar janela |
+| `Mod+C` / `Mod+Shift+C` | Close / kill window |
 | `Mod+E` · `Mod+B` | Dolphin · Firefox |
-| `Mod+V` · `Mod+F` · `Mod+P` | Flutuar · tela cheia · fixar por cima |
-| `Mod+T` · `Mod+Alt+L` | Inverter split (dwindle) · alternar dwindle/scrolling |
-| `Mod+setas` / `Mod+HJKL` | Foco; com `Shift` move, com `Ctrl` troca |
-| `Mod+1..0` / `Mod+Shift+1..0` | Ir para workspace / mover janela |
-| `Mod+O` ou canto superior esquerdo | Overview |
-| `Mod+A` · `Mod+N` · `Mod+M` | Control center · settings do Noctalia · menu de sessão |
-| `Mod+Shift+S` / `Print` | Print de região (`Mod+Print` tela inteira, `Mod+Shift+A` anotar) |
+| `Mod+V` · `Mod+F` · `Mod+P` | Float · fullscreen · pin on top |
+| `Mod+T` · `Mod+Alt+L` | Flip split (dwindle) · toggle dwindle/scrolling |
+| `Mod+arrows` / `Mod+HJKL` | Focus; with `Shift` move, with `Ctrl` swap |
+| `Mod+1..0` / `Mod+Shift+1..0` | Go to workspace / move window there |
+| `Mod+O` or the top-left corner | Overview |
+| `Mod+A` · `Mod+N` · `Mod+M` | Control center · Noctalia settings · session menu |
+| `Mod+Shift+S` / `Print` | Region screenshot (`Mod+Print` full screen, `Mod+Shift+A` annotate) |
 | `Mod+Shift+V` · `Mod+Shift+P` | Clipboard · wallpaper |
-| `Mod+Shift+L` | Bloquear a tela |
-| `Mod+Space` / `Mod+Shift+Space` | Scratchpad geral: mostrar / mandar janela |
-| `Mod+S` | Scratchpad do Spotify (abre o Spotify se estiver fechado) |
-| `Mod+Shift+M` | Painel do Spotify |
-| `Mod+W` / `Mod+Shift+W` | Painel do split tunnel / ligar e desligar o túnel |
-| `Mod+F1` | Cola de atalhos do Umbriel |
-| `Alt+Tab` | Alternador de janelas |
+| `Mod+Shift+L` | Lock screen |
+| `Mod+Space` / `Mod+Shift+Space` | General scratchpad: show / send window |
+| `Mod+S` | Spotify scratchpad (starts Spotify if it is closed) |
+| `Mod+Shift+M` | Spotify panel |
+| `Mod+W` / `Mod+Shift+W` | Split-tunnel panel / toggle the tunnel |
+| `Mod+F1` | Umbriel keybind cheatsheet |
+| `Alt+Tab` | Window switcher |
 
-Workspaces fixos herdados: editores no 1, Firefox no 2, Discord no 7. O Spotify vai para o scratchpad `music`.
+Fixed workspaces carried over: editors on 1, Firefox on 2, Discord on 7. Spotify goes to the `music` scratchpad.
 
-## Split tunnel WireGuard (`wgsplit` + plugin `zmiguel/wg-split`)
+## Login screen
 
-Só os apps que você escolher passam pela VPN; o resto continua na conexão normal.
+greetd runs Noctalia Greeter on VT 1 with the Umbriel session and your user preselected and the `br` keyboard
+layout. With `[shell.greeter_sync] auto_sync = true`, Noctalia copies your wallpaper, palette, font and monitor
+layout to the greeter whenever they change (no password prompt: `install.sh` enables the greeter's narrow
+passwordless rule for your user). Pick the **Synced** color scheme on the login screen once; it is remembered.
+
+Greeter settings live in `/var/lib/noctalia-greeter/greeter.toml` (from `system/noctalia-greeter/greeter.toml`).
+
+## WireGuard split tunnel (`wgsplit` + the `zmiguel/wg-split` plugin)
+
+Only the apps you choose use the VPN; everything else stays on the normal connection.
 
 ```
-app aberto com `wgsplit run`  →  scope no wgsplit.slice (systemd --user)
+app started with `wgsplit run`  →  scope in wgsplit.slice (systemd --user)
 nftables: socket cgroupv2 == wgsplit.slice  →  fwmark 0x5157
-ip rule fwmark 0x5157  →  tabela 5157  →  default dev wgsplit
+ip rule fwmark 0x5157  →  table 5157  →  default dev wgsplit
+port 53 from the slice  →  dnsmasq in the slice (wgsplit-dns.service)  →  tunnel DNS
 ```
 
-- **Ligar/desligar:** botão da barra (clique direito), tile do control center, `Mod+Shift+W`, painel (`Mod+W`)
-  ou `wgsplit up` / `wgsplit down`.
-- **Abrir app pela VPN:** botão ▶ no painel, `/vpn <app>` no launcher, ou `wgsplit run <comando>`.
-  Os apps fixos ficam na configuração `Apps` do plugin (padrão: `spotify-launcher` e
+- **On/off:** bar shield (right click), control-center tile, `Mod+Shift+W`, the panel (`Mod+W`),
+  or `wgsplit up` / `wgsplit down`.
+- **Run an app through the VPN:** ▶ in the panel, `/vpn <app>` in the launcher, `wgsplit run <command>`,
+  or the `vpn` alias in bash. The pinned apps are the plugin's `Apps` setting (default: `spotify-launcher` and
   `firefox --new-instance -P vpn`).
-- **Mover um app já aberto:** campo "Mover app já aberto" do painel, ou `wgsplit attach spotify`.
-  Só as conexões novas entram no túnel; reconectar resolve.
-- **Kill switch** (ligado por padrão): ao desligar o túnel, os apps dele ficam sem rede em vez de vazarem pela
-  conexão normal. "Liberar apps" no painel (ou `wgsplit down` sem `--keep-killswitch`) remove o bloqueio.
-- **LAN:** os apps do túnel continuam enxergando a rede local (`ALLOW_LAN=0` em `/etc/wgsplit.env` desliga).
+- **Move a running app:** "Move a running app" in the panel, or `wgsplit attach spotify`. Only connections
+  opened afterwards use the tunnel; reconnecting fixes the rest.
+- **DNS:** lookups from tunneled apps go to a dnsmasq that runs inside the tunnel and forwards to the
+  config's `DNS` servers (or `DNS_FALLBACK`, `1.1.1.1 1.0.0.1` by default), so they don't leak to your ISP. The
+  Firefox `vpn` profile also forces DNS-over-HTTPS and hides local addresses from WebRTC.
+- **Kill switch** (on by default): when the tunnel goes down, its apps lose network access instead of falling
+  back to the normal connection. "Release apps" in the panel (or `wgsplit down` without `--keep-killswitch`)
+  lifts it.
+- **LAN:** tunneled apps can still reach the local network (`ALLOW_LAN=0` in `/etc/wgsplit.env` turns that off).
 
-Config do WireGuard em `/etc/wireguard/wgsplit.conf` (a do seu provedor serve). `DNS`, `Table` e
-`PostUp`/`PostDown` são ignorados, porque o `wgsplit-root` não usa o `wg-quick up`.
+Put the WireGuard config in `/etc/wireguard/wgsplit.conf` (your provider's file works). `Table` and
+`PostUp`/`PostDown` are ignored because `wgsplit-root` does not use `wg-quick up`. Review the exact nftables
+ruleset with `wgsplit-root print-rules $(id -u)`.
 
-Limitações:
+Caveats:
 
-- **DNS não passa pelo túnel:** as consultas saem pelo `systemd-resolved`, que fica fora do slice. Se isso
-  importa, use DNS-over-HTTPS no app (o Firefox tem a opção nas configurações).
-- **App já aberto não entra pelo `run`:** chamar `firefox` com o Firefox aberto só cria uma janela no
-  processo antigo, que está fora do túnel. Por isso o padrão é `--new-instance -P vpn` (o install cria o perfil).
-- O `sudoers` libera **apenas** `/usr/local/bin/wgsplit-root` sem senha, e só para o seu usuário.
+- **An app that is already running does not join through `run`:** `firefox` with Firefox open just opens a
+  window in the old process, outside the tunnel. That is why the default is `--new-instance -P vpn`.
+- `sudoers` allows **only** `/usr/local/bin/wgsplit-root` without a password, and only for your user.
 
-## Spotify (plugin `zmiguel/spotify`)
+## Spotify (the `zmiguel/spotify` plugin)
 
-- Widget na barra com artista e música (clique abre o painel, clique direito pausa, scroll troca a faixa).
-- Painel com capa, barra de progresso com seek, controles, copiar link, mostrar a janela e "abrir pela VPN".
-- O Spotify roda no scratchpad `music` do Umbriel (`Mod+S`), que abre o app sozinho se ele estiver fechado.
-  Para ele sempre sair pela VPN, troque o `spawn_when_empty` em `config/umbriel/config.toml` por
-  `wgsplit run spotify-launcher`.
-- Tema: `./install.sh --no-packages --spicetify` (abra e logue no Spotify uma vez antes) instala o Spicetify com o
-  tema Comfy; depois adicione `"spicetify"` em `community_ids` para as cores seguirem o Noctalia.
+- Bar widget with artist and title (click opens the panel, right click pauses, scroll skips).
+- Panel with artwork, a seek bar, controls, copy link, show window, and "open through the VPN".
+- Spotify lives in Umbriel's `music` scratchpad (`Mod+S`), which starts it when closed. To always route it through
+  the VPN, set `spawn_when_empty = "wgsplit run spotify-launcher"` in `config/umbriel/config.toml`.
+- Theme: `./install.sh --no-packages --spicetify` (open Spotify and log in once first) installs Spicetify with the
+  Comfy theme and a path unit that re-applies it after each Spotify update; then add `"spicetify"` to
+  `community_ids` so its colors follow Noctalia.
 
-## Tema
+## Theme
 
-Cores vêm do Noctalia (`[theme]` em `config/noctalia/config.toml`) e são aplicadas pelos templates `umbriel`,
-`kitty`, `gtk3`, `gtk4`, `qt`, `btop` e `starship`. Para o tema seguir o wallpaper, use
-`source = "wallpaper"` (sugestão: `wallpaper_scheme = "m3-monochrome"`, perto do cinza do setup antigo).
+Colors come from Noctalia (`[theme]` in `config/noctalia/config.toml`) and are applied by the `umbriel`, `kitty`,
+`gtk3`, `gtk4`, `qt`, `btop` and `starship` templates, and to the greeter by greeter sync. To follow the wallpaper
+instead, set `source = "wallpaper"` (`wallpaper_scheme = "m3-monochrome"` is close to the old gray setup).
 
-## Problemas comuns
+## CI
 
-| Sintoma | Onde olhar |
+`.github/workflows/lint.yml` runs on every push: `bash -n` and ShellCheck on the scripts, `tools/lint.py`
+(TOML/JSON parsing, plugin manifests, entry files, `require` targets, translation keys used by the code, and key
+parity between translation files), Luau syntax for every plugin script, and `nft -c` on the ruleset
+`wgsplit-root print-rules` renders from `tools/sample-wgsplit.conf`. Run `python3 tools/lint.py` locally.
+
+## Troubleshooting
+
+| Symptom | Where to look |
 | --- | --- |
-| Config do Noctalia "não pega" | `~/.local/state/noctalia/settings.toml` (a GUI tem prioridade) e `noctalia config validate` |
-| Atalho não funciona | `umbriel config validate`; atalhos do Noctalia: `noctalia msg ...` no terminal |
-| Logs do Noctalia | `~/.cache/noctalia/noctalia.log` |
-| Plugin não aparece | `noctalia msg plugins list`; habilite com `noctalia msg plugins enable zmiguel/wg-split` |
-| `wgsplit up` falha | `sudo -n /usr/local/bin/wgsplit-root up $(id -u)` mostra o erro; confira `/etc/wireguard/wgsplit.conf` |
-| App não sai pela VPN | `wgsplit status` lista o que está no slice; `curl ifconfig.me` vs `wgsplit run curl ifconfig.me` |
+| A Noctalia setting seems ignored | `~/.local/state/noctalia/settings.toml` (the GUI wins) and `noctalia config validate` |
+| A bind does nothing | `umbriel config validate`; for Noctalia binds, run the `noctalia msg ...` command in a terminal |
+| Noctalia logs | `~/.cache/noctalia/noctalia.log` |
+| A plugin is missing | `noctalia msg plugins list`; enable with `noctalia msg plugins enable zmiguel/wg-split` |
+| `wgsplit up` fails | `sudo -n /usr/local/bin/wgsplit-root up $(id -u)` shows the error; check `/etc/wireguard/wgsplit.conf` |
+| An app does not use the VPN | `wgsplit status` lists the slice; compare `curl ifconfig.me` with `wgsplit run curl ifconfig.me` |
+| Tunneled apps have no DNS | `systemctl --user status wgsplit-dns.service`; `wgsplit run getent hosts example.com` |
+| No login screen after reboot | Switch to a TTY (`Ctrl+Alt+F2`), then `systemctl status greetd` |

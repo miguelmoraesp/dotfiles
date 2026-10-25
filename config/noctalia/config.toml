@@ -1,15 +1,14 @@
-# Noctalia — shell (barra, launcher, notificações, wallpaper, lock, OSD)
-# Referência completa: https://docs.noctalia.dev/noctalia/
-# Valide com `noctalia config validate`.
+# Noctalia — shell (bar, launcher, notifications, wallpaper, lock screen, OSD)
+# Full reference: https://docs.noctalia.dev/noctalia/
+# Check with `noctalia config validate`.
 #
-# O que você muda pela GUI vai para ~/.local/state/noctalia/settings.toml e
-# tem prioridade sobre este arquivo. Se algo daqui "não pegar", olhe lá.
+# Changes made in the GUI go to ~/.local/state/noctalia/settings.toml and win
+# over this file. If a value here seems ignored, look there.
 
 [shell]
-lang = "pt-BR"
 telemetry_enabled = false
-offline_mode = false            # os plugins/templates da comunidade precisam de rede
-polkit_agent = true             # Umbriel não traz agente polkit próprio
+offline_mode = false            # community plugins and templates need network access
+polkit_agent = true             # Umbriel ships no polkit agent of its own
 time_format = "{:%H:%M}"
 date_format = "%A, %d/%m"
 clipboard_enabled = true
@@ -17,23 +16,27 @@ umbriel_overview_type_to_launch_enabled = true
 umbriel_overview_close_on_launch_enabled = true
 umbriel_audio_provider_enabled = false
 
-# ── Tema ──────────────────────────────────────────────────────────────────────
+# Copy wallpaper, palette, font and monitor layout to the login screen on every change.
+[shell.greeter_sync]
+auto_sync = true
+
+# ── Theme ─────────────────────────────────────────────────────────────────────
 
 [theme]
 mode = "dark"
 source = "builtin"
 builtin = "Noctalia"
-# Para gerar as cores a partir do wallpaper (o setup antigo era todo cinza):
+# To derive the colors from the wallpaper (the old setup was all gray):
 # source = "wallpaper"
 # wallpaper_scheme = "m3-monochrome"
 
 [theme.templates]
 enable_builtin_templates = true
-# Liste os disponíveis com: noctalia theme --list-templates
+# List the available ones with: noctalia theme --list-templates
 builtin_ids = ["umbriel", "kitty", "gtk3", "gtk4", "qt", "btop"]
 enable_community_templates = true
 community_ids = ["starship"]
-# Spicetify (tema do Spotify) — rode ./install.sh --spicetify antes de habilitar:
+# Spicetify (Spotify theme) — run ./install.sh --spicetify before enabling it:
 # community_ids = ["starship", "spicetify"]
 
 # ── Wallpaper ─────────────────────────────────────────────────────────────────
@@ -58,7 +61,7 @@ timeout = 660
 action = "screen_off"
 enabled = true
 
-# ── Barra ─────────────────────────────────────────────────────────────────────
+# ── Bar ───────────────────────────────────────────────────────────────────────
 
 [bar.main]
 position = "top"
@@ -74,7 +77,7 @@ start = ["launcher", "workspaces", "active-window"]
 center = ["clock"]
 end = ["spotify_now", "tray", "notifications", "clipboard", "vpn_split", "network", "bluetooth", "volume", "brightness", "battery", "control-center", "session"]
 
-# Widgets dos plugins deste repo (noctalia-plugins/)
+# Widgets from this repo's plugins (noctalia-plugins/)
 [widget.vpn_split]
 type = "zmiguel/wg-split:bar"
 
@@ -82,7 +85,7 @@ type = "zmiguel/wg-split:bar"
 type = "zmiguel/spotify:bar"
 
 # ── Plugins ───────────────────────────────────────────────────────────────────
-# zmiguel/* são copiados pelo install.sh para ~/.local/share/noctalia/plugins/.
+# zmiguel/* are copied by install.sh into ~/.local/share/noctalia/plugins/.
 
 [plugins]
 enabled = ["zmiguel/wg-split", "zmiguel/spotify"]
