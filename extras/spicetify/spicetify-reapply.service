@@ -1,0 +1,10 @@
+# After an update Spotify is stock again: `apply` fails on the outdated backup,
+# and `backup apply` then re-backs up the new version and patches it.
+[Unit]
+Description=Re-apply Spicetify to an updated Spotify
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/sleep 20
+ExecStart=/bin/sh -c 'spicetify -n -q apply || spicetify -n -q backup apply'
+ExecStartPost=-/usr/bin/notify-send -a Spicetify "Spotify updated" "Theme re-applied. Restart Spotify to see it."

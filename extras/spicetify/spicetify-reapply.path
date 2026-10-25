@@ -1,0 +1,11 @@
+# spotify-launcher updates Spotify in place, which drops the Spicetify patch.
+# Watching the Spotify binary (Spicetify only touches Apps/) fires once per update.
+[Unit]
+Description=Watch for Spotify updates to re-apply Spicetify
+
+[Path]
+PathChanged=%h/.local/share/spotify-launcher/install/usr/share/spotify/spotify
+Unit=spicetify-reapply.service
+
+[Install]
+WantedBy=default.target

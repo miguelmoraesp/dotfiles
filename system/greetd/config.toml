@@ -1,0 +1,7 @@
+# /etc/greetd/config.toml — greetd runs Noctalia Greeter on VT 1.
+[terminal]
+vt = 1
+
+[default_session]
+command = "/usr/bin/noctalia-greeter-session"
+user = "greeter"
