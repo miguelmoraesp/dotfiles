@@ -1,0 +1,58 @@
+# Pacotes dos repositórios oficiais. Uma linha por pacote; '#' comenta.
+
+# Base da sessão
+base-devel
+git
+xorg-xwayland
+xdg-desktop-portal
+xdg-desktop-portal-gtk
+xdg-user-dirs
+polkit
+
+# Noctalia (shell) e o que ele usa
+noctalia
+upower
+power-profiles-daemon
+gnome-keyring
+libsecret
+sound-theme-freedesktop
+libheif
+
+# Áudio, mídia e brilho
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+pavucontrol
+playerctl
+brightnessctl
+
+# Rede e bluetooth
+networkmanager
+network-manager-applet
+bluez
+bluez-utils
+
+# Split tunnel WireGuard (wgsplit + plugin zmiguel/wg-split)
+wireguard-tools
+nftables
+jq
+sudo
+
+# Apps
+kitty
+dolphin
+firefox
+spotify-launcher
+btop
+starship
+
+# Fontes, ícones e temas
+noto-fonts
+noto-fonts-emoji
+noto-fonts-cjk
+ttf-nerd-fonts-symbols
+papirus-icon-theme
+gnome-themes-extra
+qt5ct
+qt6ct

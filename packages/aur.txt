@@ -1,0 +1,4 @@
+# Pacotes do AUR (instalados com yay ou paru).
+
+# Compositor; puxa xdg-desktop-portal-umbriel-git
+umbriel-git
