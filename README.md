@@ -161,3 +161,22 @@ parity between translation files), Luau syntax for every plugin script, and `nft
 | An app does not use the VPN | `wgsplit status` lists the slice; compare `curl ifconfig.me` with `wgsplit run curl ifconfig.me` |
 | Tunneled apps have no DNS | `systemctl --user status wgsplit-dns.service`; `wgsplit run getent hosts example.com` |
 | No login screen after reboot | Switch to a TTY (`Ctrl+Alt+F2`), then `systemctl status greetd` |
+
+### Testing in a VMware VM
+
+Everything was tested end to end on an Arch VMware VM, with one VM-only workaround. VMware's `vmwgfx` driver
+cannot import the dmabufs that GPU-rendered Wayland clients hand to the compositor, so the greeter and Noctalia
+die with `importing the supplied dmabufs failed`. Force software rendering on the VM only (real GPUs don't need
+this):
+
+```sh
+# Login screen: in /etc/greetd/config.toml
+command = "env LIBGL_ALWAYS_SOFTWARE=1 /usr/bin/noctalia-greeter-session"
+
+# Desktop session
+echo LIBGL_ALWAYS_SOFTWARE=1 > ~/.config/environment.d/90-vm.conf
+```
+
+Give the VM at least 4 cores and 6 GB of RAM, or the Umbriel build runs out of memory. WSL2 can test
+`install.sh` and the config validators, but not the desktop (no DRM/GBM) or the split-tunnel routing (its kernel
+lacks `nft_socket`).
