@@ -1,0 +1,41 @@
+name: lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          for f in install.sh wgsplit/wgsplit wgsplit/wgsplit-root home/.bashrc home/.bash_profile; do
+            bash -n "$f"
+          done
+
+      - name: ShellCheck
+        run: shellcheck -s bash -S warning install.sh wgsplit/wgsplit wgsplit/wgsplit-root home/.bashrc home/.bash_profile
+
+      - name: TOML, JSON, plugin manifests and translations
+        run: python3 tools/lint.py
+
+      - name: Install Luau
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/luau.zip" https://github.com/luau-lang/luau/releases/latest/download/luau-ubuntu.zip
+          unzip -q "$RUNNER_TEMP/luau.zip" -d "$RUNNER_TEMP/luau"
+          echo "$RUNNER_TEMP/luau" >> "$GITHUB_PATH"
+
+      - name: Luau syntax
+        run: find noctalia-plugins -name '*.luau' -print0 | xargs -0 -n1 luau-compile --null
+
+      - name: nftables ruleset
+        run: |
+          sudo apt-get install -y --no-install-recommends nftables >/dev/null
+          # The exact ruleset `wgsplit up` loads. The cgroup match is swapped for a mark
+          # match because the slice does not exist on the runner; the rest is checked as is.
+          bash wgsplit/wgsplit-root print-rules 1000 tools/sample-wgsplit.conf \
+            | sed 's/socket cgroupv2 level 4 "[^"]*"/meta mark 0x5157/' \
+            | sudo nft -c -f -
