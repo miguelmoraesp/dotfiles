@@ -44,7 +44,10 @@ ensure_anchor() {
 }
 
 root() {
-    sudo -n "$ROOT_HELPER" "$@" || die "sudo $ROOT_HELPER $1 failed (is /etc/sudoers.d/wgsplit installed?)"
+    if ! sudo -n -l "$ROOT_HELPER" >/dev/null 2>&1; then
+        die "sudo cannot run $ROOT_HELPER without a password (is /etc/sudoers.d/wgsplit installed?)"
+    fi
+    sudo -n "$ROOT_HELPER" "$@" || die "wgsplit-root $1 failed (see the error above)"
 }
 
 cmd_up() {
