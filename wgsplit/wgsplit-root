@@ -134,6 +134,27 @@ dns_chain() {
     printf '    chain dns {\n        type nat hook output priority dstnat; policy accept;\n%s    }\n' "$rules"
 }
 
+# UDP port the tunnel's own encrypted packets leave from: the live interface's,
+# else the config's ListenPort (for print-rules), else nothing.
+listen_port() {
+    local port=""
+    if [[ -d "/sys/class/net/$IFACE" ]]; then
+        port="$(wg show "$IFACE" listen-port 2>/dev/null || true)"
+    fi
+    [[ "$port" =~ ^[1-9][0-9]*$ ]] || port="$(conf_values ListenPort | head -n1)"
+    [[ "$port" =~ ^[1-9][0-9]*$ ]] && echo "$port"
+    return 0
+}
+
+# Encrypted packets can still carry the tunneled app's socket, so without this
+# they match the slice, get marked and are routed back into the tunnel forever.
+tunnel_exempt() {
+    local port
+    port="$(listen_port)"
+    [[ -n "$port" ]] && printf '        udp sport %s return\n' "$port"
+    return 0
+}
+
 # The whole nftables table for one user's slice. `print-rules` shows it without loading it.
 ruleset() {
     local slice="$1"
@@ -141,6 +162,7 @@ ruleset() {
 table inet $NFT_TABLE {
     chain output {
         type route hook output priority mangle; policy accept;
+$(tunnel_exempt)
         socket cgroupv2 level 4 "$slice" meta mark set $MARK ct mark set meta mark
     }
     chain prerouting {
