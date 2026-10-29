@@ -48,7 +48,7 @@ Configs are **copied**, not symlinked: Noctalia's theme templates rewrite `umbri
 | `system/` | greetd and Noctalia Greeter configs (installed by `install.sh`) |
 | `firefox/vpn-user.js` | Hardening for the Firefox `vpn` profile |
 | `extras/spicetify/` | Units that re-apply Spicetify after Spotify updates |
-| `noctalia-plugins/wg-split`, `noctalia-plugins/spotify` | This repo's Noctalia plugins |
+| `noctalia-plugins/wg-split`, `noctalia-plugins/spotify`, `noctalia-plugins/updates` | This repo's Noctalia plugins |
 | `wgsplit/` | `wgsplit` CLI and the `wgsplit-root` helper |
 | `wallpapers/` | Wallpapers copied to `~/wallpapers` (add `blackhole.png` here) |
 | `packages/` | Package lists |
@@ -137,6 +137,14 @@ Caveats:
   Comfy theme and a path unit that re-applies it after each Spotify update; then add `"spicetify"` to
   `community_ids` so its colors follow Noctalia.
 
+## Updates (the `zmiguel/updates` plugin)
+
+- Bar icon with the number of pending updates (official repositories via `checkupdates`, AUR via `yay -Qua`);
+  hidden count when up to date. Left click opens the panel, right click checks now.
+- Panel listing each package (`old → new`) by source, and an Upgrade button that opens `kitty -e yay -Syu`.
+- Checks every 60 minutes and notifies when the count goes up. `checkupdates` uses a temporary database copy,
+  so it never leaves the system half-synced.
+
 ## Theme and bar
 
 The palette is **VioletNoir** (`config/noctalia/palettes/VioletNoir.json`): a near-black, slightly violet
@@ -145,7 +153,7 @@ pair meets WCAG AA (4.5:1 or better). Noctalia applies it to the shell and, thro
 `gtk4`, `qt`, `btop` and `starship` templates, to the apps; greeter sync carries it to the login screen. To follow the
 wallpaper instead, set `source = "wallpaper"` in `[theme]`.
 
-The bar keeps the right side to icons only: Spotify, the split-tunnel shield, tray, network, volume, notifications
+The bar keeps the right side to icons only: Spotify, the split-tunnel shield, updates, tray, network, volume, notifications
 and power. Clipboard, bluetooth and the other quick settings live in the control center (`Mod+A`, or click the
 network icon). On the left, next to the launcher, the photo icon opens the official **Wallhaven** browser
 (`noctalia/wallhaven`): search wallpapers, download them into `~/wallpapers` and apply them.

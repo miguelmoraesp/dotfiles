@@ -1,0 +1,83 @@
+# System updates: a bar icon with the number of pending updates and a panel that
+# lists them, split into official repositories (`checkupdates`, which syncs a
+# throwaway copy of the database and never touches the real one) and AUR
+# (`yay -Qua`). "Upgrade" opens a terminal running the upgrade command.
+
+id           = "zmiguel/updates"
+name         = "Updates"
+version      = "1.0.0"
+plugin_api   = 24
+author       = "zmiguel"
+license      = "MIT"
+icon         = "package"
+description  = "Pending pacman and AUR (yay) updates in the bar, with a panel and one-click upgrade."
+tags         = ["bar", "panel", "service", "system", "pacman", "aur"]
+dependencies = ["pacman-contrib", "yay"]
+
+[[setting]]
+key = "interval_minutes"
+type = "int"
+label_key = "settings.interval_minutes.label"
+description_key = "settings.interval_minutes.description"
+default = 60
+min = 5
+max = 1440
+
+[[setting]]
+key = "check_aur"
+type = "bool"
+label_key = "settings.check_aur.label"
+default = true
+
+[[setting]]
+key = "notify"
+type = "bool"
+label_key = "settings.notify.label"
+description_key = "settings.notify.description"
+default = true
+
+[[setting]]
+key = "terminal"
+type = "string"
+label_key = "settings.terminal.label"
+description_key = "settings.terminal.description"
+default = "kitty"
+
+[[setting]]
+key = "upgrade_command"
+type = "string"
+label_key = "settings.upgrade_command.label"
+description_key = "settings.upgrade_command.description"
+default = "yay -Syu"
+
+[[setting]]
+key = "aur_helper"
+type = "string"
+label_key = "settings.aur_helper.label"
+description_key = "settings.aur_helper.description"
+default = "yay"
+advanced = true
+
+[[service]]
+id = "service"
+entry = "service.luau"
+
+[[widget]]
+id = "bar"
+entry = "bar.luau"
+
+  [[widget.setting]]
+  key = "hide_when_none"
+  type = "bool"
+  label_key = "settings.hide_when_none.label"
+  description_key = "settings.hide_when_none.description"
+  default = false
+
+[[panel]]
+id = "panel"
+entry = "panel.luau"
+width = 400
+height = 540
+placement = "attached"
+position = "auto"
+open_near_click = true

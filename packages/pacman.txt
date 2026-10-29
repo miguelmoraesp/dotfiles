@@ -46,6 +46,9 @@ dnsmasq
 jq
 sudo
 
+# Update checker (the zmiguel/updates plugin)
+pacman-contrib
+
 # Shell
 bash-completion
 starship

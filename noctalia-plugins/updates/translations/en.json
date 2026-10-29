@@ -1,0 +1,68 @@
+{
+  "title": "Updates",
+  "errors": {
+    "check_failed": "Could not check for updates.",
+    "no_checkupdates": "checkupdates not found. Install pacman-contrib.",
+    "no_helper": "{helper} not found, so the AUR is not checked.",
+    "no_terminal": "Could not open the terminal {terminal}. Set it in the plugin settings.",
+    "timeout": "The check took too long. Is the network up?"
+  },
+  "notifications": {
+    "available": {
+      "one": "{count} update available",
+      "other": "{count} updates available"
+    }
+  },
+  "panel": {
+    "aur": "AUR",
+    "checking": "Checking…",
+    "days_ago": "{n} d ago",
+    "hours_ago": "{n} h ago",
+    "just_now": "just now",
+    "last_check": "Last check: {when}",
+    "minutes_ago": "{n} min ago",
+    "never": "never",
+    "none": "Up to date.",
+    "refresh": "Check now",
+    "repo": "Official repositories",
+    "settings": "Plugin settings",
+    "up_to_date": "System up to date",
+    "upgrade": "Upgrade"
+  },
+  "settings": {
+    "aur_helper": {
+      "description": "Command used to list AUR updates with -Qua (yay or paru).",
+      "label": "AUR helper"
+    },
+    "check_aur": {
+      "label": "Check the AUR"
+    },
+    "hide_when_none": {
+      "description": "Show the icon only when there are updates or the check failed.",
+      "label": "Hide when up to date"
+    },
+    "interval_minutes": {
+      "description": "How often to check. Right click on the icon checks right away.",
+      "label": "Check interval (min)"
+    },
+    "notify": {
+      "description": "Notify when the number of pending updates goes up.",
+      "label": "Notifications"
+    },
+    "terminal": {
+      "description": "Terminal that runs the upgrade; it is called as <terminal> -e <command>.",
+      "label": "Terminal"
+    },
+    "upgrade_command": {
+      "description": "Command the Upgrade button runs in the terminal.",
+      "label": "Upgrade command"
+    }
+  },
+  "tooltip": {
+    "checking": "Checking for updates…",
+    "error": "error"
+  },
+  "upgrade": {
+    "close_prompt": "Done. Press Enter to close."
+  }
+}

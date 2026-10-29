@@ -75,7 +75,7 @@ start = ["launcher", "wallhaven", "workspaces", "active-window"]
 center = ["clock"]
 # Icons only on the right. Clipboard, bluetooth and the rest stay in the control
 # center (Mod+A, or click the network icon) and behind their keybinds.
-end = ["spotify_now", "vpn_split", "tray", "network", "volume", "notifications", "session"]
+end = ["spotify_now", "vpn_split", "updates", "tray", "network", "volume", "notifications", "session"]
 
 [widget.network]
 show_label = false
@@ -93,6 +93,9 @@ type = "zmiguel/wg-split:bar"
 [widget.spotify_now]
 type = "zmiguel/spotify:bar"
 
+[widget.updates]
+type = "zmiguel/updates:bar"
+
 [widget.wallhaven]
 type = "noctalia/wallhaven:wallhaven"
 
@@ -101,7 +104,7 @@ type = "noctalia/wallhaven:wallhaven"
 # noctalia/wallhaven comes from the built-in official source (fetched on first start).
 
 [plugins]
-enabled = ["zmiguel/wg-split", "zmiguel/spotify", "noctalia/wallhaven"]
+enabled = ["zmiguel/wg-split", "zmiguel/spotify", "zmiguel/updates", "noctalia/wallhaven"]
 auto_update = "official"
 
 # Wallhaven saves into the wallpaper folder (~/wallpapers) unless download_dir is set.

@@ -1,0 +1,68 @@
+{
+  "title": "Atualizações",
+  "errors": {
+    "check_failed": "Não foi possível verificar as atualizações.",
+    "no_checkupdates": "checkupdates não encontrado. Instale o pacman-contrib.",
+    "no_helper": "{helper} não encontrado, então o AUR não é verificado.",
+    "no_terminal": "Não foi possível abrir o terminal {terminal}. Ajuste nas configurações do plugin.",
+    "timeout": "A verificação demorou demais. A rede está funcionando?"
+  },
+  "notifications": {
+    "available": {
+      "one": "{count} atualização disponível",
+      "other": "{count} atualizações disponíveis"
+    }
+  },
+  "panel": {
+    "aur": "AUR",
+    "checking": "Verificando…",
+    "days_ago": "há {n} d",
+    "hours_ago": "há {n} h",
+    "just_now": "agora mesmo",
+    "last_check": "Última verificação: {when}",
+    "minutes_ago": "há {n} min",
+    "never": "nunca",
+    "none": "Tudo atualizado.",
+    "refresh": "Verificar agora",
+    "repo": "Repositórios oficiais",
+    "settings": "Configurações do plugin",
+    "up_to_date": "Sistema atualizado",
+    "upgrade": "Atualizar"
+  },
+  "settings": {
+    "aur_helper": {
+      "description": "Comando usado para listar as atualizações do AUR com -Qua (yay ou paru).",
+      "label": "AUR helper"
+    },
+    "check_aur": {
+      "label": "Verificar o AUR"
+    },
+    "hide_when_none": {
+      "description": "Mostrar o ícone só quando houver atualizações ou a verificação falhar.",
+      "label": "Esconder quando atualizado"
+    },
+    "interval_minutes": {
+      "description": "De quanto em quanto tempo verificar. Clique direito no ícone verifica na hora.",
+      "label": "Intervalo de verificação (min)"
+    },
+    "notify": {
+      "description": "Notificar quando o número de atualizações pendentes aumentar.",
+      "label": "Notificações"
+    },
+    "terminal": {
+      "description": "Terminal que roda a atualização; é chamado como <terminal> -e <comando>.",
+      "label": "Terminal"
+    },
+    "upgrade_command": {
+      "description": "Comando que o botão Atualizar roda no terminal.",
+      "label": "Comando de atualização"
+    }
+  },
+  "tooltip": {
+    "checking": "Verificando atualizações…",
+    "error": "erro"
+  },
+  "upgrade": {
+    "close_prompt": "Pronto. Pressione Enter para fechar."
+  }
+}
