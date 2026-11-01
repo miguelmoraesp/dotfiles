@@ -2,3 +2,7 @@
 
 # Compositor; pulls in xdg-desktop-portal-umbriel-git
 umbriel-git
+
+# Official Realtek driver for the RTL8111/8168 NIC (blacklists r8169 itself).
+# Meant to fix Windows having no network after rebooting from Linux.
+r8168-dkms

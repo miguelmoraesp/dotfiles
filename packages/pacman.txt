@@ -69,3 +69,11 @@ papirus-icon-theme
 gnome-themes-extra
 qt5ct
 qt6ct
+
+# Hardware: Realtek RTL8111/8168 NIC. r8168-dkms (AUR) is built against these
+# headers.
+dkms
+linux-headers
+
+# Secure Boot with our own keys (signs GRUB and the kernel)
+sbctl
