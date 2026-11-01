@@ -204,6 +204,14 @@ match.app_id = "^[Ss]potify$"
 default_scratchpad = "music"
 default_floating_size = { width = 0.7, height = 0.75 }
 
+# Keyring / polkit password prompts have no parent window; pin them so they
+# are not hidden behind the Spotify scratchpad.
+[[window_rule]]
+match.app_id = "^(gcr-prompter|org.gnome.keyring.SystemPrompter)$"
+default_floating = true
+default_pinned = true
+default_focused = true
+
 [[window_rule]]
 match.app_id = "^dev.noctalia.Noctalia$"
 default_floating = true

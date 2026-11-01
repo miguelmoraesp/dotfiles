@@ -271,6 +271,8 @@ setup_greeter() {
 
     sudo_install_file "$REPO/system/greetd/config.toml" /etc/greetd/config.toml
     ok "/etc/greetd/config.toml"
+    sudo_install_file "$REPO/system/greetd/pam" /etc/pam.d/greetd
+    ok "/etc/pam.d/greetd (unlocks the login keyring)"
 
     sudo systemd-tmpfiles --create noctalia-greeter.conf >/dev/null 2>&1 || true
     sudo noctalia-greeter-apply-appearance --setup-system >/dev/null \
