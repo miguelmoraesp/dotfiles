@@ -31,11 +31,20 @@ custom_palette = "VioletNoir"
 [theme.templates]
 enable_builtin_templates = true
 # List the available ones with: noctalia theme --list-templates
-builtin_ids = ["umbriel", "kitty", "gtk3", "gtk4", "qt", "btop"]
+builtin_ids = ["kitty", "gtk3", "gtk4", "qt", "btop"]
 enable_community_templates = true
 community_ids = ["starship"]
 # Spicetify (Spotify theme) — run ./install.sh --spicetify before enabling it:
 # community_ids = ["starship", "spicetify"]
+
+# Umbriel: the built-in template still writes title_bar *_glyph colors, which
+# umbriel-git dropped (`umbriel config validate` rejects them). This copy
+# (templates/umbriel.toml) leaves them out; the built-in apply.sh still adds
+# noctalia.toml to [include.optional] in ~/.config/umbriel/config.toml.
+[theme.templates.user.umbriel]
+input_path = "templates/umbriel.toml"
+output_path = "$XDG_CONFIG_HOME/umbriel/noctalia.toml"
+post_hook = "bash /usr/share/noctalia/assets/templates/umbriel/apply.sh"
 
 # ── Wallpaper ─────────────────────────────────────────────────────────────────
 
@@ -71,7 +80,7 @@ padding = 14
 widget_spacing = 6
 compositor_blur = true
 
-start = ["launcher", "wallhaven", "workspaces", "active-window"]
+start = ["launcher", "wallhaven", "workspaces", "active_window"]
 center = ["clock"]
 # Icons only on the right. Clipboard, bluetooth and the rest stay in the control
 # center (Mod+A, or click the network icon) and behind their keybinds.
