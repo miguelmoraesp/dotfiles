@@ -33,6 +33,18 @@ contrast = 0.9
 saturation = 1.1
 
 # ==============================================================================
+# Outputs — AOC (1920x1080) is the main screen; the small LG (1366x768) sits to
+# its left, top edges aligned. Names come from `umbriel outputs` ("Config name").
+
+[output."AOC 27G50F ZQBQAXA008209"]
+position = [1366, 0]
+mode = "1920x1080@143.999"
+focus_at_startup = true
+
+[output."LG Electronics LG HD 0x01010101"]
+position = [0, 0]
+
+# ==============================================================================
 # Input
 
 [input.keyboard]
